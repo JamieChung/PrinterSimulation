@@ -9,15 +9,22 @@ public class Simulator {
 	public Simulator ()
 	{
 		jobs = new HashMap<JobState, ArrayList<Job>>();
-
+		
+		for ( JobState state : JobState.values() )
+		{
+			jobs.put(state, new ArrayList<Job>());
+		}
 	}
 
 	public void run() {
-		// TODO Auto-generated method stub
-
-		System.out.println(NumberGenerator.randomNumberGenerator());
-		System.out.println(NumberGenerator.randomNumberGenerator());
-		System.out.println(NumberGenerator.randomNumberGenerator());
-		System.out.println(NumberGenerator.randomNumberGenerator());
+		
+		while ( clock <= 1000.0 )
+		{
+			
+			
+			
+			
+			clock++;
+		}
 	}
 }
