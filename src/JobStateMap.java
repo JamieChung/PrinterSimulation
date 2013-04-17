@@ -2,6 +2,13 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 
+/**
+ * Used to manage the jobs in the various job queues.
+ * Manages the CRUD (Create Read Update Delete) operations for Jobs.te
+ * 
+ * @author Jamie Chung <jfchung@vt.edu>
+ *
+ */
 public class JobStateMap
 {
 	private HashMap<JobState, ArrayList<Job>> jobs;

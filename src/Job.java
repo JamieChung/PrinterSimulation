@@ -1,4 +1,10 @@
 
+/**
+ * Job entity which is managed in various state queues.
+ * Implements Comparable class so that it can be sorted in list.
+ * @author Jamie Chung <jfchung@vt.edu>
+ *
+ */
 public class Job implements Comparable<Object> {
 	
 	private double meanArrivalTime;

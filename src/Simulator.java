@@ -1,4 +1,9 @@
 
+/**
+ * Main Simulation which manages the simulation clock and job queues.
+ * @author Jamie Chung <jfchung@vt.edu>
+ *
+ */
 public class Simulator {
 	private JobStateMap jobs;
 	public static double clock = 0.0;

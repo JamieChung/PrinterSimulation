@@ -1,9 +1,14 @@
 
+/**
+ * Number Generator for the simulation.
+ * @author Jamie Chung <jfchung@vt.edu>
+ * @author Dr. Osman Balci <balci@vt.edu>
+ *
+ */
 public class NumberGenerator {
 
 	// Initial Seed Value
 	public static long gv_lRandomNumberSeed = Long.parseLong("319412203455463900");
-
 	
 	static double randomNumberGenerator ()
 	{

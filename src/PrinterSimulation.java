@@ -1,4 +1,9 @@
 
+/**
+ * Wrapper to run main Printer Simulation.
+ * @author Jamie Chung <jfchung@vt.edu>
+ *
+ */
 public class PrinterSimulation {
 	
 	/**
