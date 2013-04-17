@@ -1,30 +1,39 @@
-import java.util.ArrayList;
-import java.util.HashMap;
 
 public class Simulator {
-
-	private HashMap<JobState, ArrayList<Job>> jobs;
-	private double clock = 0.0;
+	private JobStateMap jobs;
+	public static double clock = 0.0;
 	
 	public Simulator ()
 	{
-		jobs = new HashMap<JobState, ArrayList<Job>>();
-		
-		for ( JobState state : JobState.values() )
-		{
-			jobs.put(state, new ArrayList<Job>());
-		}
+		jobs = new JobStateMap();
 	}
 
 	public void run() {
 		
-		while ( clock <= 1000.0 )
+		// Simulate one job
+		
+		Job j = new Job(JobSource.PCGROUP1, JobState.INITIALIZED, clock);
+		jobs.insert(j);
+		
+		// Update job initialized queue
+		while ( clock <= 300.0 )
 		{
+			for ( JobState state : JobState.values() )
+			{
+				if ( jobs.canPromote(state, clock) )
+				{
+					jobs.promote(jobs.getFirst(state));
+				}
+			}
 			
+			if ( clock % 10.0 == 0 )
+			{
+				System.out.println("["+clock+"]");
+			}
 			
-			
-			
-			clock++;
+			clock += 1.0;
 		}
+		
+		System.out.println(jobs);
 	}
 }

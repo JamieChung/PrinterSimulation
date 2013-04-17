@@ -30,7 +30,7 @@ public class Job implements Comparable<Object> {
 		arrivalTime = NumberGenerator.exponentialRVG(meanArrivalTime) + currentTime;
 	}
 	
-	public void nextState ()
+	public void promote ()
 	{
 		setPreviousArrivalTime(arrivalTime);
 		
@@ -38,21 +38,28 @@ public class Job implements Comparable<Object> {
 		{
 			case INITIALIZED:
 				state = JobState.MACINTOSH;
+				arrivalTime = NumberGenerator.exponentialRVG(Constants.JOB_EXECUTION_MACINTOSH) + arrivalTime;
 				break;
+				
+			case MACINTOSH:
+				state = JobState.NEXTSTATION;
+				arrivalTime+= NumberGenerator.exponentialRVG(Constants.JOB_EXECUTION_NEXTSTATION) + arrivalTime;
+				break;
+				
+			case NEXTSTATION:
+				state = JobState.LASERJET;
+				break;
+				
 			case LASERJET:
 				break;
-			case LASERJET_FINISHED:
-				break;
-			case MACINTOSH:
-				break;
-			case MACINTOSH_FINISHED:
-				break;
-			case NEXTSTATION:
-				break;
-			case NEXTSTATION_FINISHED:
-				break;
-			default:
-				break;
+//			case LASERJET_FINISHED:
+//				break;
+//			case MACINTOSH_FINISHED:
+//				break;
+//			case NEXTSTATION_FINISHED:
+//				break;
+//			default:
+//				break;
 		}
 		
 	}
