@@ -11,51 +11,69 @@ import java.util.HashMap;
  */
 public class JobManager
 {
-	private HashMap<JobState, ArrayList<Job>> jobs;
+	// Manages the jobs based on their state
+	private HashMap<JobState, ArrayList<Job>> jobs = new HashMap<JobState, ArrayList<Job>>();
+	
+	// Temporary list to use for job manipulation between statuses
 	private ArrayList<Job> list;
 	
+	/**
+	 * Constructor
+	 */
 	public JobManager ()
 	{
-		jobs = new HashMap<JobState, ArrayList<Job>>();
-		
-		
+		// For each of the job states, initialize their respective queues.
 		for ( JobState state : JobState.values() )
 		{
 			jobs.put(state, new ArrayList<Job>());
 		}
 	}
 	
+	/**
+	 * Insert a new job into the system
+	 * @param j Job object
+	 */
 	public void insert (Job j )
 	{
+		// Grab the ArrayList based on the job
 		list = jobs.get(j.getJobState());
+		
+		// Add the job to that ArrayList
 		list.add(j);
 		
 		// Sort in order of arrival times
 		Collections.sort(list);
 		
+		// Replace the array list with the manipulated object
 		jobs.put(j.getJobState(), list);
-
-//		System.out.println("["+ Simulator.clock +"] Inserted job " + j);
-//		System.out.println("["+ Simulator.clock +"] All Jobs " + jobs + "\n");
 	}
 	
+	/**
+	 * Remove a job from the system
+	 * @param j Job object
+	 */
 	private void remove ( Job j )
 	{
 		// Get current list
 		list = jobs.get(j.getJobState());
+		
 		// Remove it from current list and store updated list
 		list.remove(j);
-		
-		Collections.sort(list);
-		jobs.put(j.getJobState(), list);
 
-//		System.out.println("["+ Simulator.clock +"] Removed job " + j);
+		// Sort in order of arrival times
+		Collections.sort(list);
+		
+		// Replace the array list with the manipulated object
+		jobs.put(j.getJobState(), list);
 	}
 	
+	/**
+	 * Attempts to promote a job within the simulation system
+	 * @param j Job object
+	 */
 	public void promote ( Job j )
 	{	
-//		System.out.println("["+ Simulator.clock +"] Promoting job " + j);
-		
+		// Promote based onc urrent job state
 		switch ( j.getJobState() )
 		{
 			case MACINTOSH: // Step 2
@@ -94,20 +112,35 @@ public class JobManager
 		}
 	}
 	
+	/**
+	 * Gets the first job from a specific state queue.
+	 * @param state The queue list to get the first job based on the state of the job
+	 * @return First available job in a respective queue list, null if none is available
+	 */
 	public Job getFirst ( JobState state )
 	{
-		if ( jobs.get(state).size() > 0 )
+		// Get the job at index = 0
+		return get(state, 0);
+	}
+	
+	/**
+	 * Gets a specific job from a specific state queue
+	 * @param state The queue list to search for job based on state of the job
+	 * @param index Index position of the job if known before hand.
+	 * @return Job at specified index, null if it is not available.
+	 */
+	public Job get ( JobState state, int index )
+	{
+		// Get the proper list queue based on the job state
+		list = jobs.get(state);
+
+		// We have to ensure that a job does exist
+		if ( list.size() > 0 )
 		{
-			return jobs.get(state).get(0);
+			return list.get(index);
 		}
 		
 		return null;
-	}
-	
-	public Job get ( JobState state, int index )
-	{
-		list = jobs.get(state);
-		return list.get(index);
 	}
 	
 	public String toString ()
@@ -126,6 +159,12 @@ public class JobManager
 		return sb.toString();
 	}
 	
+	/**
+	 * Checks if we can promote a job to the next stage based on the system clock.
+	 * @param state Job state queue to check.
+	 * @param clock System clock value.
+	 * @return True if there exists at least one job which is available to promotion.
+	 */
 	public boolean canPromote ( JobState state, double clock )
 	{
 		if ( jobs.get(state).size() > 0 )
@@ -136,9 +175,15 @@ public class JobManager
 		return false;
 	}
 	
+	/**
+	 * Counts all the jobs within the job manager.
+	 * @return Number of jobs within the job manager.
+	 */
 	public int totalJobs ()
 	{
 		int count = 0;
+		
+		// Loop through all the job states
 		for ( JobState state : JobState.values() )
 		{
 			count += jobs.get(state).size();
