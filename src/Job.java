@@ -12,11 +12,13 @@ public class Job implements Comparable<Object> {
 	private double arrivalTime;
 	private JobSource source;
 	private JobState state;
+	public static int id = 0;
 	
 	public Job ( JobSource _source, JobState _state, double currentTime )
 	{
 		source = _source;
 		state = _state;
+		id = Job.id + 1;
 		
 		switch ( source )
 		{
@@ -44,16 +46,17 @@ public class Job implements Comparable<Object> {
 		{
 			case INITIALIZED:
 				state = JobState.MACINTOSH;
-				arrivalTime = NumberGenerator.exponentialRVG(Constants.JOB_EXECUTION_MACINTOSH) + arrivalTime;
+				arrivalTime += NumberGenerator.exponentialRVG(Constants.JOB_EXECUTION_MACINTOSH);
 				break;
 				
 			case MACINTOSH:
 				state = JobState.NEXTSTATION;
-				arrivalTime+= NumberGenerator.exponentialRVG(Constants.JOB_EXECUTION_NEXTSTATION) + arrivalTime;
+				arrivalTime += NumberGenerator.exponentialRVG(Constants.JOB_EXECUTION_NEXTSTATION);
 				break;
 				
 			case NEXTSTATION:
 				state = JobState.LASERJET;
+				arrivalTime += NumberGenerator.exponentialRVG(Constants.JOB_EXECUTION_LASERJET);
 				break;
 				
 			case LASERJET:

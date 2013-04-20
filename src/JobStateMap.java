@@ -35,8 +35,8 @@ public class JobStateMap
 		
 		jobs.put(j.getJobState(), list);
 
-		System.out.println("["+ Simulator.clock +"] Inserted job " + j);
-		System.out.println("["+ Simulator.clock +"] All Jobs " + jobs + "\n");
+//		System.out.println("["+ Simulator.clock +"] Inserted job " + j);
+//		System.out.println("["+ Simulator.clock +"] All Jobs " + jobs + "\n");
 	}
 	
 	private void remove ( Job j )
@@ -49,34 +49,48 @@ public class JobStateMap
 		Collections.sort(list);
 		jobs.put(j.getJobState(), list);
 
-		System.out.println("["+ Simulator.clock +"] Removed job " + j);
+//		System.out.println("["+ Simulator.clock +"] Removed job " + j);
 	}
 	
 	public void promote ( Job j )
-	{
-//		System.out.println("["+ Simulator.clock + "] Promoting job " + j);
-		
-		System.out.println(j.getJobState());
+	{	
+//		System.out.println("["+ Simulator.clock +"] Promoting job " + j);
 		
 		switch ( j.getJobState() )
 		{
-			case INITIALIZED:
-				
-				System.out.println("["+ Simulator.clock +"] Promoted job " + j);
+			case MACINTOSH: // Step 2
+			case INITIALIZED: // Step 1
 				
 				remove(j);
 				j.promote();
 				insert(j);
 				
-				// Insert the new job into the initialized list
-				Job _j = new Job(j.getJobSource(), JobState.INITIALIZED, j.getArrivalTime());
-				insert(_j);
+				if ( j.getJobState() == JobState.INITIALIZED )
+				{
+					// Insert the new job into the initialized list
+					Job _j = new Job(j.getJobSource(), JobState.INITIALIZED, j.getArrivalTime());
+					insert(_j);
+				}
+
+			case NEXTSTATION: // Step 3
+				// There is a 10 count limit job the LASERJET queue
+
+				remove(j);
 				
-			break;
+				if ( jobs.get(JobState.LASERJET).size() <  10 )
+				{
+					j.promote();
+					insert(j);
+				}
+				
+				break;
+				
+			case LASERJET:
+				remove(j);
+				break;
 				
 		default:
 			break;
-			
 		}
 	}
 	
@@ -120,5 +134,16 @@ public class JobStateMap
 		}
 		
 		return false;
+	}
+	
+	public int totalJobs ()
+	{
+		int count = 0;
+		for ( JobState state : JobState.values() )
+		{
+			count += jobs.get(state).size();
+		}
+		
+		return count;
 	}
 }

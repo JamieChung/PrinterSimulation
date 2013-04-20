@@ -1,3 +1,5 @@
+import java.util.HashMap;
+
 
 /**
  * Main Simulation which manages the simulation clock and job queues.
@@ -5,20 +7,25 @@
  *
  */
 public class Simulator {
-	private JobStateMap jobs;
+
+	// Simulator Clock
 	public static double clock = 0.0;
 	
-	public Simulator ()
-	{
-		jobs = new JobStateMap();
-	}
+	// Manages all the jobs within the system
+	private JobStateMap jobs = new JobStateMap();
+	
+	// Records the job history within the system
+	private HashMap<Double, Integer> history = new HashMap<Double,Integer>();
 
+	/**
+	 * Begins the simulation.
+	 */
 	public void run() {
 		
 		// Simulate one job
-		
-		Job j = new Job(JobSource.PCGROUP1, JobState.INITIALIZED, clock);
-		jobs.insert(j);
+		jobs.insert(new Job(JobSource.PCGROUP1, JobState.INITIALIZED, clock));
+		jobs.insert(new Job(JobSource.PCGROUP2, JobState.INITIALIZED, clock));
+		jobs.insert(new Job(JobSource.PCGROUP3, JobState.INITIALIZED, clock));
 		
 		// Update job initialized queue
 		while ( clock <= 300.0 )
@@ -36,9 +43,16 @@ public class Simulator {
 				System.out.println("["+clock+"]");
 			}
 			
-			clock += 1.0;
+			recordHistory();
+			clock += 0.01;
 		}
-		
-		System.out.println(jobs);
+	}
+	
+	/**
+	 * Records the system clock and the number of jobs within the system.
+	 */
+	private void recordHistory ()
+	{
+		history.put(Double.valueOf(clock), jobs.totalJobs());
 	}
 }
