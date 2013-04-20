@@ -12,7 +12,7 @@ public class Simulator {
 	public static double clock = 0.0;
 	
 	// Manages all the jobs within the system
-	private JobStateMap jobs = new JobStateMap();
+	private JobManager jobs = new JobManager();
 	
 	// Records the job history within the system
 	private HashMap<Double, Integer> history = new HashMap<Double,Integer>();

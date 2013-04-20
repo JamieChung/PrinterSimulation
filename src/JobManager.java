@@ -9,12 +9,12 @@ import java.util.HashMap;
  * @author Jamie Chung <jfchung@vt.edu>
  *
  */
-public class JobStateMap
+public class JobManager
 {
 	private HashMap<JobState, ArrayList<Job>> jobs;
 	private ArrayList<Job> list;
 	
-	public JobStateMap ()
+	public JobManager ()
 	{
 		jobs = new HashMap<JobState, ArrayList<Job>>();
 		
