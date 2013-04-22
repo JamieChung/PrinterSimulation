@@ -10,11 +10,20 @@ public class NumberGenerator {
 	// Initial Seed Value
 	public static long gv_lRandomNumberSeed = Long.parseLong("319412203455463900");
 	
+	/**
+	 * Generates a random number based on the current number seed
+	 * @return Random number
+	 */
 	static double randomNumberGenerator ()
 	{
 		return NumberGenerator.randomNumberGenerator(NumberGenerator.gv_lRandomNumberSeed);
 	}
 	
+	/**
+	 * Generates a random number based on specified seed value
+	 * @param plSeed Seed value to generate random number from
+	 * @return Random number
+	 */
 	static double randomNumberGenerator ( long plSeed )
 	{
 		double dZ;
@@ -32,6 +41,11 @@ public class NumberGenerator {
 		return ( dZ / 2147483647 );
 	}
 	
+	/**
+	 * Generates an Exponential Random Variate
+	 * @param dMean Mean value of the random variate
+	 * @return Random number based on the exponential RV
+	 */
 	static double exponentialRVG( double dMean )
 	{
 		return ( -dMean * Math.log( randomNumberGenerator() ) );

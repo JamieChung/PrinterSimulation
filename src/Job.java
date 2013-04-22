@@ -7,19 +7,36 @@
  */
 public class Job implements Comparable<Object> {
 	
+	// Mean Arrival Time based on the job source
 	private double meanArrivalTime;
-	private double previousArrivalTime;
+	
+	// Arrival time for current state in the system
 	private double arrivalTime;
+	
+	// Source of the job 
 	private JobSource source;
+	
+	// Current state queue where the job is in the system
 	private JobState state;
+	
+	// Unique ID for a job in the system
 	public static int id = 0;
 	
+	/**
+	 * Constructor to setup new job
+	 * @param _source Source of the job to enter the system
+	 * @param _state Initial state of the job
+	 * @param currentTime Current time of the system clock
+	 */
 	public Job ( JobSource _source, JobState _state, double currentTime )
 	{
 		source = _source;
 		state = _state;
+		
+		// Increment by one
 		id = Job.id + 1;
 		
+		// Set the mean arrival time based on the job source
 		switch ( source )
 		{
 			case PCGROUP1:
@@ -38,10 +55,14 @@ public class Job implements Comparable<Object> {
 		arrivalTime = NumberGenerator.exponentialRVG(meanArrivalTime) + currentTime;
 	}
 	
+	
+	/**
+	 * Promote the job state of a job
+	 * Also handles the updating of the new arrival time based on the execution time
+	 * of previous states in the system.
+	 */
 	public void promote ()
 	{
-		setPreviousArrivalTime(arrivalTime);
-		
 		switch ( state )
 		{
 			case INITIALIZED:
@@ -61,33 +82,41 @@ public class Job implements Comparable<Object> {
 				
 			case LASERJET:
 				break;
-//			case LASERJET_FINISHED:
-//				break;
-//			case MACINTOSH_FINISHED:
-//				break;
-//			case NEXTSTATION_FINISHED:
-//				break;
-//			default:
-//				break;
 		}
 		
 	}
 	
+	/**
+	 * Gets the current job state
+	 * @return JobState
+	 */
 	public JobState getJobState ()
 	{
 		return state;
 	}
 	
+	/**
+	 * Gets the arrival time of the job in the current state in system
+	 * @return Unit time
+	 */
 	public double getArrivalTime ()
 	{	
 		return arrivalTime;
 	}
 	
+	/**
+	 * Gets the source of the current job
+	 * @return JobSource
+	 */
 	public JobSource getJobSource ()
 	{
 		return source;
 	}
 	
+	/**
+	 * Easy string representation of a job object for debugging
+	 * @return <Job.source> [<Job.state>] - ArrivalTime: <Job.arrivalTime>
+	 */
 	public String toString ()
 	{
 		StringBuffer sb = new StringBuffer();
@@ -98,7 +127,10 @@ public class Job implements Comparable<Object> {
 		return sb.toString();
 	}
 
-	@Override
+	/**
+	 * Used to compare two job objects when sorting in a list.
+	 * Objects are sorted in order of arrival times.
+	 */
 	public int compareTo(Object arg) {
 		
 		Job j;
@@ -123,11 +155,4 @@ public class Job implements Comparable<Object> {
 		return 1;
 	}
 
-	public double getPreviousArrivalTime() {
-		return previousArrivalTime;
-	}
-
-	public void setPreviousArrivalTime(double previousArrivalTime) {
-		this.previousArrivalTime = previousArrivalTime;
-	}
 }

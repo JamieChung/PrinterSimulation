@@ -7,6 +7,7 @@
 public class PrinterSimulation {
 	
 	/**
+	 * Wrapper to start simulation
 	 * @param args
 	 */
 	public static void main(String[] args) {
