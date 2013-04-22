@@ -26,7 +26,7 @@ public class Simulator {
 		jobs.insert(new Job(JobSource.PCGROUP1, JobState.INITIALIZED, clock));
 		jobs.insert(new Job(JobSource.PCGROUP2, JobState.INITIALIZED, clock));
 		jobs.insert(new Job(JobSource.PCGROUP3, JobState.INITIALIZED, clock));
-		
+
 		// Update job initialized queue
 		while ( clock <= 300.0 )
 		{
@@ -44,8 +44,10 @@ public class Simulator {
 			}
 			
 			recordHistory();
-			clock += 0.01;
+			clock += 1.0;
 		}
+		
+		System.out.println("Simulation Complete");
 	}
 	
 	/**

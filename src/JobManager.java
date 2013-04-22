@@ -73,7 +73,7 @@ public class JobManager
 	 */
 	public void promote ( Job j )
 	{	
-		// Promote based onc urrent job state
+		// Promote based on current job state
 		switch ( j.getJobState() )
 		{
 			case MACINTOSH: // Step 2
@@ -143,22 +143,6 @@ public class JobManager
 		return null;
 	}
 	
-	public String toString ()
-	{
-		StringBuffer sb = new StringBuffer();
-		sb.append("\n----------------\n");
-		for ( JobState state : JobState.values() )
-		{
-			if ( jobs.get(state).size() == 0 ) continue;
-			
-			sb.append(state + "\t");
-			sb.append(jobs.get(state).toString());
-			sb.append("\n");
-		}
-		
-		return sb.toString();
-	}
-	
 	/**
 	 * Checks if we can promote a job to the next stage based on the system clock.
 	 * @param state Job state queue to check.
@@ -190,5 +174,28 @@ public class JobManager
 		}
 		
 		return count;
+	}
+
+	
+	/**
+	 * Lists the job states and all the jobs within each of those state queues.
+	 * @return String representation of the Job Manager
+	 */
+	public String toString ()
+	{
+		StringBuffer sb = new StringBuffer();
+		sb.append("\n----------------\n");
+		
+		for ( JobState state : JobState.values() )
+		{
+			// If the size is zero, don't bother printing the state
+			if ( jobs.get(state).size() == 0 ) continue;
+			
+			sb.append(state + "\t");
+			sb.append(jobs.get(state).toString());
+			sb.append("\n");
+		}
+		
+		return sb.toString();
 	}
 }
