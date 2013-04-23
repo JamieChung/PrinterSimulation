@@ -41,6 +41,11 @@ public class JobManager
 		// Add the job to that ArrayList
 		list.add(j);
 		
+		if ( j.getJobState() == JobState.INITIALIZED && j.getId() % 100.0 == 0 )
+		{
+			System.out.println("Job ID: "+j.getId());
+		}
+		
 		// Sort in order of arrival times
 		Collections.sort(list);
 		
@@ -78,17 +83,19 @@ public class JobManager
 		{
 			case MACINTOSH: // Step 2
 			case INITIALIZED: // Step 1
-				
-				remove(j);
-				j.promote();
-				insert(j);
-				
+
 				if ( j.getJobState() == JobState.INITIALIZED )
 				{
 					// Insert the new job into the initialized list
 					Job _j = new Job(j.getJobSource(), JobState.INITIALIZED, j.getArrivalTime());
 					insert(_j);
 				}
+
+				
+				remove(j);
+				j.promote();
+				insert(j);
+				
 
 			case NEXTSTATION: // Step 3
 				// There is a 10 count limit job the LASERJET queue
@@ -174,6 +181,18 @@ public class JobManager
 		}
 		
 		return count;
+	}
+	
+	
+	
+	/**
+	 * Gets the total number of jobs based on a job state
+	 * @param state JobState
+	 * @return Number of jobs in a specific job state
+	 */
+	public int totalJobs ( JobState state )
+	{
+		return jobs.get(state).size();
 	}
 
 	

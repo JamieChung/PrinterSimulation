@@ -20,7 +20,10 @@ public class Job implements Comparable<Object> {
 	private JobState state;
 	
 	// Unique ID for a job in the system
-	public static int id = 0;
+	private int id = 0;
+	
+	// Global job ID for the system
+	public static int incremental_id = 0;
 	
 	/**
 	 * Constructor to setup new job
@@ -34,7 +37,8 @@ public class Job implements Comparable<Object> {
 		state = _state;
 		
 		// Increment by one
-		id = Job.id + 1;
+		Job.incremental_id = Job.incremental_id + 1;
+		id = Job.incremental_id;
 		
 		// Set the mean arrival time based on the job source
 		switch ( source )
@@ -84,6 +88,15 @@ public class Job implements Comparable<Object> {
 				break;
 		}
 		
+	}
+	
+	/**
+	 * Gets the job id
+	 * @return Job ID
+	 */
+	public int getId ()
+	{
+		return id;
 	}
 	
 	/**

@@ -26,9 +26,13 @@ public class Simulator {
 		jobs.insert(new Job(JobSource.PCGROUP1, JobState.INITIALIZED, clock));
 		jobs.insert(new Job(JobSource.PCGROUP2, JobState.INITIALIZED, clock));
 		jobs.insert(new Job(JobSource.PCGROUP3, JobState.INITIALIZED, clock));
-
-		// Update job initialized queue
-		while ( clock <= 300.0 )
+		
+		/**
+		 * Conditions for running simulation
+		 * 1. We have a Job.incremental_id less than and equal to the total number of jobs in the system
+		 * 2. Our job with id = NUMBER_JOBS + NUMBER_JOBS_WARMUP has finished terminating
+		 */
+		while ( Job.incremental_id <= (Constants.NUMBER_JOBS + Constants.NUMBER_JOBS_WARMUP) )
 		{
 			for ( JobState state : JobState.values() )
 			{
