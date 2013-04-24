@@ -1,6 +1,5 @@
 import java.util.HashMap;
 
-
 /**
  * Main Simulation which manages the simulation clock and job queues.
  * @author Jamie Chung <jfchung@vt.edu>
@@ -16,6 +15,21 @@ public class Simulator {
 	
 	private EventManager events = new EventManager();
 
+	public String checkBounds ( double x, double lower, double upper )
+	{
+		StringBuffer sb = new StringBuffer();
+		
+		sb.append(" - ");
+		sb.append("[" + lower + ", " + upper + "] ");
+		if ( x < lower || x > upper )
+		{
+			sb.append("BAD");
+		}
+		
+		
+		return sb.toString();
+	}
+	
 	/**
 	 * Begins the simulation.
 	 */
@@ -29,9 +43,9 @@ public class Simulator {
 		double nextUtil = (report.nextHistory/report.clock);
 		double laserUtil = (report.laserHistory/report.clock);
 		
-		System.out.println("Mac Utilization: " + macUtil);
-		System.out.println("Next Utilization: " + nextUtil);
-		System.out.println("Laser Utilization: " + laserUtil);
+		System.out.println("Mac Utilization: " + macUtil + checkBounds(macUtil, Constants.MAC_UTIL_LOWER_VALUE, Constants.MAC_UTIL_UPPER_VALUE));
+		System.out.println("Next Utilization: " + nextUtil + checkBounds(nextUtil, Constants.NEXT_UTIL_LOWER_VALUE, Constants.NEXT_UTIL_UPPER_VALUE));
+		System.out.println("Laser Utilization: " + laserUtil + checkBounds(laserUtil, Constants.LASER_UTIL_LOWER_VALUE, Constants.LASER_UTIL_UPPER_VALUE));
 		System.out.println("W : " + (report.jobHistory / Constants.NUMBER_JOBS));
 		
 		System.out.println("Total Jobs: "+events.events.size());
@@ -42,7 +56,7 @@ public class Simulator {
 	
 	private SimulationReport run ( int number_jobs )
 	{
-		SimulationReport report = new SimulationReport();
+		SimulationReport report = new SimulationReport(number_jobs);
 		
 		Job.incremental_id = 0;
 		events.insert(new Job(JobSource.PCGROUP1, JobState.INITIALIZED, report.clock));
@@ -66,7 +80,6 @@ public class Simulator {
 		Job j;
 		int completeCount = 0;
 		int countLaser = 0;
-		int delayed = 0;
 		while ( completeCount <= number_jobs )
 		{
 			// Find earliest job 
