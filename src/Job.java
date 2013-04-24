@@ -15,6 +15,9 @@ public class Job implements Comparable<Object> {
 	
 	public double executionTime;
 	
+	public double systemStartTime;
+	public double systemEndTime;
+	
 	public double exitTime;
 	
 	// Source of the job 
@@ -61,6 +64,7 @@ public class Job implements Comparable<Object> {
 		}
 
 		arrivalTime = NumberGenerator.exponentialRVG(meanArrivalTime) + currentTime;
+		systemStartTime = arrivalTime;
 		
 //		System.out.println("\nNEW JOB " + id + " Arrived at: "+ arrivalTime);
 	}

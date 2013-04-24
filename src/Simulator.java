@@ -22,7 +22,7 @@ public class Simulator {
 	public void run() {
 		SimulationReport report;
 		
-		run(Constants.NUMBER_JOBS_WARMUP);
+//		run(Constants.NUMBER_JOBS_WARMUP);
 		report = run(Constants.NUMBER_JOBS);
 
 		double macUtil = (report.macHistory/report.clock);
@@ -32,7 +32,10 @@ public class Simulator {
 		System.out.println("Mac Utilization: " + macUtil);
 		System.out.println("Next Utilization: " + nextUtil);
 		System.out.println("Laser Utilization: " + laserUtil);
+		System.out.println("W : " + (report.jobHistory / Constants.NUMBER_JOBS));
+		
 		System.out.println("Total Jobs: "+events.events.size());
+		System.out.println("Clock: "+report.clock);
 		
 		System.out.println("Job ID: "+Job.incremental_id);
 	}
@@ -63,6 +66,7 @@ public class Simulator {
 		Job j;
 		int completeCount = 0;
 		int countLaser = 0;
+		int delayed = 0;
 		while ( completeCount <= number_jobs )
 		{
 			// Find earliest job 
@@ -99,7 +103,18 @@ public class Simulator {
 					// Promote to completion and set arrival times based on when jobs will fire
 					j.executionTime = NumberGenerator.exponentialRVG(Constants.JOB_EXECUTION_MACINTOSH);
 					report.macHistory += j.executionTime;
-					j.arrivalTime += j.executionTime;
+					
+					// Our projected arrival time is less than when the clock will be idle
+					if ( (j.arrivalTime + j.executionTime) < report.macClock )
+					{
+						j.arrivalTime = report.macClock + j.executionTime;
+					}
+					else
+					{
+						j.arrivalTime += j.executionTime;
+					}
+					
+					report.macClock = j.arrivalTime;
 					
 					j.state = JobState.NEXTSTATION;
 					events.insert(j);
@@ -112,11 +127,21 @@ public class Simulator {
 					events.remove(j);
 					
 					j.executionTime = NumberGenerator.exponentialRVG(Constants.JOB_EXECUTION_NEXTSTATION);
-					
 					report.nextHistory += j.executionTime;
-					j.arrivalTime += j.executionTime;
-					j.state = JobState.NEXTSTATION_FINISHED;
+
+					// Our projected arrival time is less than when the clock will be idle
+					if ( (j.arrivalTime + j.executionTime) < report.nextClock )
+					{
+						j.arrivalTime = report.nextClock + j.executionTime;
+					}
+					else
+					{
+						j.arrivalTime += j.executionTime;
+					}
 					
+					report.nextClock = j.arrivalTime;
+					
+					j.state = JobState.NEXTSTATION_FINISHED;
 					events.insert(j);
 					
 					break;
@@ -129,9 +154,11 @@ public class Simulator {
 					{
 						countLaser++;
 						j.executionTime = NumberGenerator.exponentialRVG(Constants.JOB_EXECUTION_LASERJET);
-						report.laserHistory += j.executionTime;
-						report.laserClock = j.arrivalTime;
+						j.arrivalTime += j.executionTime;
 						j.state = JobState.LASERJET;
+						
+						report.laserHistory += j.executionTime;
+						
 						events.insert(j);
 					}
 					else
@@ -143,6 +170,8 @@ public class Simulator {
 					
 				case LASERJET:
 					
+					report.jobHistory += (j.arrivalTime - j.systemStartTime);
+
 					events.remove(j);
 					completeCount++;
 					

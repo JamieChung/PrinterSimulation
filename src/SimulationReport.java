@@ -11,4 +11,6 @@ public class SimulationReport {
 	public double nextClock = 0.0;
 	public double laserClock = 0.0;
 	
+	public double jobHistory = 0.0;
+	
 }
