@@ -11,16 +11,20 @@ public class Job implements Comparable<Object> {
 	private double meanArrivalTime;
 	
 	// Arrival time for current state in the system
-	private double arrivalTime;
+	public double arrivalTime;
+	
+	public double executionTime;
+	
+	public double exitTime;
 	
 	// Source of the job 
 	private JobSource source;
 	
 	// Current state queue where the job is in the system
-	private JobState state;
+	public JobState state;
 	
 	// Unique ID for a job in the system
-	private int id = 0;
+	public int id = 0;
 	
 	// Global job ID for the system
 	public static int incremental_id = 0;
@@ -57,6 +61,8 @@ public class Job implements Comparable<Object> {
 		}
 
 		arrivalTime = NumberGenerator.exponentialRVG(meanArrivalTime) + currentTime;
+		
+//		System.out.println("\nNEW JOB " + id + " Arrived at: "+ arrivalTime);
 	}
 	
 	
@@ -67,25 +73,28 @@ public class Job implements Comparable<Object> {
 	 */
 	public void promote ()
 	{
+		double executionTime;
 		switch ( state )
 		{
 			case INITIALIZED:
 				state = JobState.MACINTOSH;
-				arrivalTime += NumberGenerator.exponentialRVG(Constants.JOB_EXECUTION_MACINTOSH);
+				executionTime = NumberGenerator.exponentialRVG(Constants.JOB_EXECUTION_MACINTOSH);
+				exitTime = arrivalTime = executionTime;
+				Simulator.macHistory += executionTime;
 				break;
 				
 			case MACINTOSH:
-				state = JobState.NEXTSTATION;
-				arrivalTime += NumberGenerator.exponentialRVG(Constants.JOB_EXECUTION_NEXTSTATION);
+				state = JobState.COMPLETED;
+				exitTime = arrivalTime + NumberGenerator.exponentialRVG(Constants.JOB_EXECUTION_NEXTSTATION);
 				break;
-				
-			case NEXTSTATION:
-				state = JobState.LASERJET;
-				arrivalTime += NumberGenerator.exponentialRVG(Constants.JOB_EXECUTION_LASERJET);
-				break;
-				
-			case LASERJET:
-				break;
+//				
+//			case NEXTSTATION:
+//				state = JobState.LASERJET;
+//				arrivalTime += NumberGenerator.exponentialRVG(Constants.JOB_EXECUTION_LASERJET);
+//				break;
+//				
+//			case LASERJET:
+//				break;
 		}
 		
 	}
@@ -134,9 +143,14 @@ public class Job implements Comparable<Object> {
 	{
 		StringBuffer sb = new StringBuffer();
 		
-		sb.append(source);
+//		sb.append(source);
+		sb.append("Job: "+this.id);
 		sb.append(" [" + state + "] ");
 		sb.append(" - Arrival Time: " + arrivalTime);
+		if ( exitTime > 0 )
+		{
+			sb.append(" - Exit Time: " + exitTime);
+		}
 		return sb.toString();
 	}
 

@@ -22,7 +22,7 @@ public class Constants {
 	
 	// Mean execution values for processing stations
 	public static double JOB_EXECUTION_MACINTOSH = 4.5;
-	public static double JOB_EXECUTION_NEXTSTATION = 5;
+	public static double JOB_EXECUTION_NEXTSTATION = 5.0;
 	public static double JOB_EXECUTION_LASERJET = 5.8;
 }
 

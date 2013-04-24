@@ -40,14 +40,15 @@ public class JobManager
 		
 		// Add the job to that ArrayList
 		list.add(j);
-		
-		if ( j.getJobState() == JobState.INITIALIZED && j.getId() % 100.0 == 0 )
-		{
-			System.out.println("Job ID: "+j.getId());
-		}
-		
+
 		// Sort in order of arrival times
 		Collections.sort(list);
+		
+//		if ( j.getJobState() == JobState.INITIALIZED )
+//		{
+//			System.out.println("Job ID: "+j.getId());
+//			System.out.println(this.toString());
+//		}
 		
 		// Replace the array list with the manipulated object
 		jobs.put(j.getJobState(), list);
@@ -78,36 +79,40 @@ public class JobManager
 	 */
 	public void promote ( Job j )
 	{	
+		Simulator.clock = j.getArrivalTime();
+//		System.out.println("Advanced Clock: "+Simulator.clock + " -- " + j);
 		// Promote based on current job state
 		switch ( j.getJobState() )
 		{
-			case MACINTOSH: // Step 2
 			case INITIALIZED: // Step 1
-
+				
 				if ( j.getJobState() == JobState.INITIALIZED )
 				{
 					// Insert the new job into the initialized list
 					Job _j = new Job(j.getJobSource(), JobState.INITIALIZED, j.getArrivalTime());
 					insert(_j);
 				}
-
 				
 				remove(j);
 				j.promote();
 				insert(j);
 				
 
+			case MACINTOSH: // Step 2
+				
+				break;
+				
 			case NEXTSTATION: // Step 3
 				// There is a 10 count limit job the LASERJET queue
 
-				remove(j);
+//				remove(j);
 				
-				if ( jobs.get(JobState.LASERJET).size() <  10 )
-				{
-					j.promote();
-					insert(j);
-				}
-				
+//				if ( jobs.get(JobState.LASERJET).size() <  10 )
+//				{
+//					j.promote();
+//					insert(j);
+//				}
+//				
 				break;
 				
 			case LASERJET:

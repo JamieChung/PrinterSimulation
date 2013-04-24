@@ -8,7 +8,7 @@
 public class NumberGenerator {
 
 	// Initial Seed Value
-	public static long gv_lRandomNumberSeed = Long.parseLong("319412203455463900");
+	public static long gv_lRandomNumberSeed = Long.parseLong("1029524122034554630");
 	
 	/**
 	 * Generates a random number based on the current number seed
