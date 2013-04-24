@@ -7,9 +7,6 @@ import java.util.HashMap;
  *
  */
 public class Simulator {
-
-	// Simulator Clock
-	public static double clock = 0.0;
 	
 	// Manages all the jobs within the system
 	private JobManager jobs = new JobManager();
@@ -17,32 +14,45 @@ public class Simulator {
 	// Records the job history within the system
 	private HashMap<Double, Integer> history = new HashMap<Double,Integer>();
 	
-	// Records the state execution history for the system
-	public static double macHistory;
-	public static double nextHistory;
-	public static double laserHistory;
-	
-	
 	private EventManager events = new EventManager();
-	public static double macClock = 0.0;
-	public static double nextClock = 0.0;
-	public static double laserClock = 0.0;
 
 	/**
 	 * Begins the simulation.
 	 */
 	public void run() {
+		SimulationReport report;
 		
-		// Simulate one job
-//		jobs.insert());
-//		jobs.insert(new Job(JobSource.PCGROUP2, JobState.INITIALIZED, Simulator.clock));
-//		jobs.insert(new Job(JobSource.PCGROUP3, JobState.INITIALIZED, Simulator.clock));
+		run(Constants.NUMBER_JOBS_WARMUP);
+		report = run(Constants.NUMBER_JOBS);
+
+		double macUtil = (report.macHistory/report.clock);
+		double nextUtil = (report.nextHistory/report.clock);
+		double laserUtil = (report.laserHistory/report.clock);
 		
-//		System.out.println("System Clock:" + Simulator.clock);
-		events.insert(new Job(JobSource.PCGROUP1, JobState.INITIALIZED, Simulator.clock));
-		events.insert(new Job(JobSource.PCGROUP2, JobState.INITIALIZED, Simulator.clock));
-		events.insert(new Job(JobSource.PCGROUP3, JobState.INITIALIZED, Simulator.clock));
-//		System.out.println(events.events);
+		System.out.println("Mac Utilization: " + macUtil);
+		System.out.println("Next Utilization: " + nextUtil);
+		System.out.println("Laser Utilization: " + laserUtil);
+		System.out.println("Total Jobs: "+events.events.size());
+		
+		System.out.println("Job ID: "+Job.incremental_id);
+	}
+	
+	private SimulationReport run ( int number_jobs )
+	{
+		SimulationReport report = new SimulationReport();
+		
+		Job.incremental_id = 0;
+		events.insert(new Job(JobSource.PCGROUP1, JobState.INITIALIZED, report.clock));
+		
+		if ( number_jobs > 1 )
+		{
+			events.insert(new Job(JobSource.PCGROUP2, JobState.INITIALIZED, report.clock));
+		}
+		
+		if ( number_jobs > 2 )
+		{
+			events.insert(new Job(JobSource.PCGROUP3, JobState.INITIALIZED, report.clock));
+		}
 		
 		/**
 		 * Conditions for running simulation
@@ -52,13 +62,15 @@ public class Simulator {
 		
 		Job j;
 		int completeCount = 0;
-		while ( completeCount <= (Constants.NUMBER_JOBS_WARMUP + Constants.NUMBER_JOBS) )
+		int countLaser = 0;
+		while ( completeCount <= number_jobs )
 		{
 			// Find earliest job 
 			j = events.getFirstJob();
 			if ( j == null ) break;
 
-			Simulator.clock = j.getArrivalTime();
+			report.clock = j.getArrivalTime();
+			
 //			System.out.println("Next: " + j);
 //			System.out.println("System clock at: "+Simulator.clock);
 //			System.out.println(events.events);
@@ -66,53 +78,46 @@ public class Simulator {
 			switch ( j.getJobState() )
 			{
 				case INITIALIZED:
-					
-					// Insert a new job
-					events.insert(new Job(j.getJobSource(), JobState.INITIALIZED, Simulator.clock));
-					
 					// Promote to MAC state
 					events.remove(j);
 					j.state = JobState.MACINTOSH;
 					events.insert(j);
 					
-//					System.out.println("Job #" + j.id + " Arrived at MAC STATE at " + j.arrivalTime);
+//					System.out.println("Job #" + j.id + " to arrive at MAC at " + j.arrivalTime);
 				break;
 				
 				case MACINTOSH:
+
+					if (Job.incremental_id < number_jobs )
+					{
+						// Insert a new job
+						events.insert(new Job(j.getJobSource(), JobState.INITIALIZED, report.clock));
+					}
+					
 					events.remove(j);
 					
 					// Promote to completion and set arrival times based on when jobs will fire
 					j.executionTime = NumberGenerator.exponentialRVG(Constants.JOB_EXECUTION_MACINTOSH);
-					j.arrivalTime += Simulator.macClock + j.executionTime;
-					Simulator.macHistory += j.executionTime;
-					Simulator.macClock = j.arrivalTime;
-					completeCount++;
-//					j.state = JobState.COMPLETED;
-//					events.insert(j);
+					report.macHistory += j.executionTime;
+					j.arrivalTime += j.executionTime;
 					
-//					System.out.println("Promoted Job #" + j.id + " to NEXT at " + j.arrivalTime);
+					j.state = JobState.NEXTSTATION;
+					events.insert(j);
+					
+//					System.out.println("Job #" + j.id + " to arrive at NEXT at " + j.arrivalTime);
 				break;
-				
-				case MACINTOSH_FINISHED:
-					
-					// Promote to MAC state
-					events.remove(j);
-//					j.state = JobState.NEXTSTATION;
-//					events.insert(j);
-					
-					break;
 				
 				case NEXTSTATION:
 					
 					events.remove(j);
-					j.executionTime = NumberGenerator.exponentialRVG(Constants.JOB_EXECUTION_NEXTSTATION);
-					j.arrivalTime += Simulator.nextClock + j.executionTime;
-					Simulator.nextHistory += j.executionTime;
-					Simulator.nextClock = j.arrivalTime;
-					j.state = JobState.NEXTSTATION_FINISHED;
-					events.insert(j);
 					
-//					System.out.println("Promoted Job :" + j.id + " to COMPLETION at " + j.arrivalTime);
+					j.executionTime = NumberGenerator.exponentialRVG(Constants.JOB_EXECUTION_NEXTSTATION);
+					
+					report.nextHistory += j.executionTime;
+					j.arrivalTime += j.executionTime;
+					j.state = JobState.NEXTSTATION_FINISHED;
+					
+					events.insert(j);
 					
 					break;
 					
@@ -120,59 +125,38 @@ public class Simulator {
 					
 					events.remove(j);
 					
-					completeCount++;
-					
-					if ( completeCount % 10.0 == 0.0 )
+					if ( countLaser < 10 )
 					{
-						System.out.println("Completed: " + completeCount + " Jobs : " + Job.incremental_id);
+						countLaser++;
+						j.executionTime = NumberGenerator.exponentialRVG(Constants.JOB_EXECUTION_LASERJET);
+						report.laserHistory += j.executionTime;
+						report.laserClock = j.arrivalTime;
+						j.state = JobState.LASERJET;
+						events.insert(j);
 					}
-					
-					
-//					int count = 0;
-//					for ( int i = 0; i < events.events.size(); i++ )
-//					{
-//						
-//						if ( count >= 10 ) break;
-//						
-//						if ( events.events.get(i).getJobState() == JobState.LASERJET )
-//						{
-//							count++;
-//						}
-//					}
-//					
-//					if ( count < 10 )
-//					{
-//						j.state = JobState.LASERJET;
-//						events.insert(j);
-//					}
+					else
+					{
+						completeCount++;
+					}
 					
 					break;
 					
 				case LASERJET:
 					
 					events.remove(j);
+					completeCount++;
 					
-					j.executionTime = NumberGenerator.exponentialRVG(Constants.JOB_EXECUTION_LASERJET);
-					j.arrivalTime += Simulator.laserClock + j.executionTime;
-					Simulator.laserHistory += j.executionTime;
-					Simulator.laserClock = j.arrivalTime;
+					countLaser--;
+					if ( countLaser < 0 )
+					{
+						countLaser = 0;
+					}
 					
-					j.state = JobState.COMPLETED;
-					events.insert(j);
-					
-	
 					break;
 			}
 		}
-
 		
-//		System.out.println(events.events);
-		System.out.println("\n\nSimulator Clock "+Simulator.clock);
-		System.out.println("Mac Utilization: " + (Simulator.macHistory/Simulator.clock));
-		System.out.println("Next Utilization: " + (Simulator.nextHistory/Simulator.clock));
-		System.out.println("Laser Utilization: " + (Simulator.laserHistory/Simulator.clock));
-		System.out.println("Total Jobs: "+events.events.size());
-		System.out.println("Complete Count: "+completeCount);
+		return report;
 	}
 	
 	/**
@@ -180,6 +164,6 @@ public class Simulator {
 	 */
 	private void recordHistory ()
 	{
-		history.put(Double.valueOf(Simulator.clock), jobs.totalJobs());
+//		history.put(Double.valueOf(report.clock), jobs.totalJobs());
 	}
 }

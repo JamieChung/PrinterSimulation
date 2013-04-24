@@ -73,20 +73,20 @@ public class Job implements Comparable<Object> {
 	 */
 	public void promote ()
 	{
-		double executionTime;
-		switch ( state )
-		{
-			case INITIALIZED:
-				state = JobState.MACINTOSH;
-				executionTime = NumberGenerator.exponentialRVG(Constants.JOB_EXECUTION_MACINTOSH);
-				exitTime = arrivalTime = executionTime;
-				Simulator.macHistory += executionTime;
-				break;
-				
-			case MACINTOSH:
-				state = JobState.COMPLETED;
-				exitTime = arrivalTime + NumberGenerator.exponentialRVG(Constants.JOB_EXECUTION_NEXTSTATION);
-				break;
+//		double executionTime;
+//		switch ( state )
+//		{
+//			case INITIALIZED:
+//				state = JobState.MACINTOSH;
+//				executionTime = NumberGenerator.exponentialRVG(Constants.JOB_EXECUTION_MACINTOSH);
+//				exitTime = arrivalTime = executionTime;
+//				Simulator.macHistory += executionTime;
+//				break;
+//				
+//			case MACINTOSH:
+//				state = JobState.COMPLETED;
+//				exitTime = arrivalTime + NumberGenerator.exponentialRVG(Constants.JOB_EXECUTION_NEXTSTATION);
+//				break;
 //				
 //			case NEXTSTATION:
 //				state = JobState.LASERJET;
@@ -95,7 +95,7 @@ public class Job implements Comparable<Object> {
 //				
 //			case LASERJET:
 //				break;
-		}
+//		}
 		
 	}
 	

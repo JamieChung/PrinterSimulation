@@ -79,7 +79,7 @@ public class JobManager
 	 */
 	public void promote ( Job j )
 	{	
-		Simulator.clock = j.getArrivalTime();
+//		Simulator.clock = j.getArrivalTime();
 //		System.out.println("Advanced Clock: "+Simulator.clock + " -- " + j);
 		// Promote based on current job state
 		switch ( j.getJobState() )
