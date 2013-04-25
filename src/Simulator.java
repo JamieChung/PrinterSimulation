@@ -7,13 +7,8 @@ import java.util.Random;
  * @author Jamie Chung <jfchung@vt.edu>
  *
  */
-public class Simulator {
-	
-	// Manages all the jobs within the system
-	private JobManager jobs = new JobManager();
-	
-	// Records the job history within the system
-	private HashMap<Double, Integer> history = new HashMap<Double,Integer>();
+public class Simulator
+{
 	
 	private EventManager events = new EventManager();
 	public ArrayList<SimulationReport> reports = new ArrayList<SimulationReport>();
@@ -183,7 +178,7 @@ public class Simulator {
 					
 					events.remove(j);
 					
-					if ( countLaser < 6 )
+					if ( countLaser < Constants.MAX_NUMBER_JOBS_PRINTER )
 					{
 						countLaser++;
 						j.executionTime = NumberGenerator.exponentialRVG(Constants.JOB_EXECUTION_LASERJET);

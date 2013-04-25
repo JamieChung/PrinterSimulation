@@ -4,8 +4,8 @@
  * @author Jamie Chung <jfchung@vt.edu>
  *
  */
-public class PrinterSimulation {
-	
+public class PrinterSimulation
+{	
 	/**
 	 * Wrapper to start simulation
 	 * @param args

@@ -12,13 +12,10 @@ public class Job implements Comparable<Object> {
 	
 	// Arrival time for current state in the system
 	public double arrivalTime;
-	
 	public double executionTime;
 	
 	public double systemStartTime;
-	public double systemEndTime;
-	
-	public double exitTime;
+	public double systemExitTime;
 	
 	// Source of the job 
 	private JobSource source;
@@ -151,10 +148,6 @@ public class Job implements Comparable<Object> {
 		sb.append("Job: "+this.id);
 		sb.append(" [" + state + "] ");
 		sb.append(" - Arrival Time: " + arrivalTime);
-		if ( exitTime > 0 )
-		{
-			sb.append(" - Exit Time: " + exitTime);
-		}
 		return sb.toString();
 	}
 

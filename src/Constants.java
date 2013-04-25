@@ -15,6 +15,9 @@ public class Constants {
 	// Number of jobs to process after warm up
 	public final static int NUMBER_JOBS = 10000;
 	
+	// Number of jobs that can be in the printer queue
+	public final static int MAX_NUMBER_JOBS_PRINTER = 10;
+	
 	// Mean interval average value for user groups
 	public final static double JOB_INTERVAL_USER_GROUP_1 = 20.0;
 	public final static double JOB_INTERVAL_USER_GROUP_2 = 40.0;
