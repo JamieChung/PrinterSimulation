@@ -1,3 +1,5 @@
+import java.util.Random;
+
 /**
  * Number Generator for the simulation.
  * 
@@ -7,10 +9,12 @@
  */
 public class NumberGenerator
 {
+	// Random for generating new seed values
+	public static Random r = new Random();
 
 	// Initial Seed Value
-	public static long gv_lRandomNumberSeed = Long.parseLong("1630");
-
+	public static long gv_lRandomNumberSeed = r.nextLong();
+	
 	/**
 	 * Generates a random number based on the current number seed
 	 * 

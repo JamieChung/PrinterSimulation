@@ -14,7 +14,8 @@ public class Simulator
 	
 	// Holds all the reports that will be averaged for their util values
 	public ArrayList<SimulationReport> reports = new ArrayList<SimulationReport>();
-
+	
+	
 	/**
 	 * Used to easily check parameters between a confidence interval
 	 * @param x Actual value to check
@@ -28,6 +29,8 @@ public class Simulator
 		
 		sb.append(" - ");
 		sb.append("[" + lower + ", " + upper + "] ");
+		
+		// Checks the x value with the surrounding bounds
 		if ( x < lower || x > upper )
 		{
 			sb.append("OUT OF BOUNDS");
@@ -41,21 +44,21 @@ public class Simulator
 	 */
 	public void run()
 	{
-		// Use internal random generator to create new seed values
-		Random r = new Random();
-		
+		SimulationReport warmup;
+		SimulationReport report;
 		// Replicate the simulation a set number of times
 		for ( int i = 0; i < Constants.SIMULATION_REPLICATION; i++ )
 		{
 			// For each simulation replication, we will use a new random seed
-			NumberGenerator.gv_lRandomNumberSeed = r.nextLong();
+			NumberGenerator.gv_lRandomNumberSeed = NumberGenerator.r.nextLong();
 			
 			// Run the warmup jobs
-			run(Constants.NUMBER_JOBS_WARMUP);
+			warmup = run(Constants.NUMBER_JOBS_WARMUP);
+			report = run(Constants.NUMBER_JOBS);
 			
 			// Run the steady state jobs, but this time we will store
 			// the simulation report for evaluation later on
-			reports.add(run(Constants.NUMBER_JOBS));	
+			reports.add(report);	
 		}
 		
 		// Print the report gathered to the console
@@ -69,129 +72,154 @@ public class Simulator
 	 */
 	private SimulationReport run ( int numberJobs )
 	{
+		// Setup a new Simulation Report
 		SimulationReport report = new SimulationReport(numberJobs);
 		
+		// Reset the global Job unique ID counter
 		Job.incremental_id = 0;
+		
+		// Delete all existing jobs
 		jobs.clear();
 		
+		// Insert the first three base jobs
 		jobs.insert(new Job(JobSource.PCGROUP1, JobState.INITIALIZED, report.clock));
 		jobs.insert(new Job(JobSource.PCGROUP2, JobState.INITIALIZED, report.clock));
 		jobs.insert(new Job(JobSource.PCGROUP3, JobState.INITIALIZED, report.clock));
 		
 		
 		Job j;
-		int completeCount = 0;
-		int countLaser = 0;
-		while ( completeCount <= numberJobs )
+		int numberCompletedJobs = 0;
+		int numberPrinterJobs = 0;
+		while ( numberCompletedJobs <= numberJobs )
 		{
 			// Find earliest job 
 			// Also dequeues from the top of the queue
 			j = jobs.getFirstJob();
 			if ( j == null ) break;
 
+			// Advances the simulation clock to the earliest event
 			report.clock = j.getArrivalTime();
 			
-			
+			// Based on the state we execute
 			switch ( j.getJobState() )
 			{
 				case INITIALIZED:
-					// Promote to MAC state
+					// Promote to Macintosh stage and reinsert
 					j.state = JobState.MACINTOSH;
 					jobs.insert(j);
+
+					// Update area counts
+					report.updateAverageNumberJobs(jobs.size());
 					
+					// Insert a new job
+					jobs.insert(new Job(j.getJobSource(), JobState.INITIALIZED, report.clock));
 				break;
 				
 				case MACINTOSH:
-
-					if (Job.incremental_id < numberJobs )
-					{
-						// Insert a new job
-						jobs.insert(new Job(j.getJobSource(), JobState.INITIALIZED, report.clock));
-						report.updateAverageNumberJobs(jobs.size());
-					}
 					
-					// Promote to completion and set arrival times based on when jobs will fire
+					// Generate time for when Macintosh job will finish executing
 					j.executionTime = NumberGenerator.exponentialRVG(Constants.JOB_EXECUTION_MACINTOSH);
+					
+					// Add it to the history of total execution time for this system
 					report.macHistory += j.executionTime;
 					
-					// Our projected arrival time is less than when the clock will be idle
-					if ( (j.arrivalTime + j.executionTime) < report.macClock )
+					// If our projected arrival time is less than when the clock will be idle
+					if ( (report.clock + j.executionTime) < report.macClock )
 					{
+						// New arrival time will be the execution time after when the clock is idle
 						j.arrivalTime = report.macClock + j.executionTime;
 					}
 					else
 					{
+						// Idle
 						j.arrivalTime += j.executionTime;
 					}
 					
 					report.macClock = j.arrivalTime;
-					
 					j.state = JobState.NEXTSTATION;
 					jobs.insert(j);
 				break;
 				
 				case NEXTSTATION:
 					
+					// Generate time for when NeXTstation job will finish executing
 					j.executionTime = NumberGenerator.exponentialRVG(Constants.JOB_EXECUTION_NEXTSTATION);
+					
+					// Add it to the history of the total execution time for this system
 					report.nextHistory += j.executionTime;
 
-					// Our projected arrival time is less than when the clock will be idle
-					if ( (j.arrivalTime + j.executionTime) < report.nextClock )
+					// If our projected arrival time is less than when the clock will be idle
+					if ( (report.clock + j.executionTime) < report.nextClock )
 					{
+						// New arrival time will be the execution time after when the clock is idle
 						j.arrivalTime = report.nextClock + j.executionTime;
 					}
 					else
 					{
+						// Idle
 						j.arrivalTime += j.executionTime;
 					}
 					
 					report.nextClock = j.arrivalTime;
-					
 					j.state = JobState.NEXTSTATION_FINISHED;
 					jobs.insert(j);
-					
 					break;
 					
 				case NEXTSTATION_FINISHED:
 					
-					if ( countLaser < Constants.MAX_NUMBER_JOBS_PRINTER )
+					// Respect the max number of jobs the printer can handle at any time
+					if ( numberPrinterJobs < Constants.MAX_NUMBER_JOBS_PRINTER )
 					{
-						countLaser++;
-						j.executionTime = NumberGenerator.exponentialRVG(Constants.JOB_EXECUTION_LASERJET);
-						report.laserHistory += j.executionTime	;
+						numberPrinterJobs++;
 						
-						if ( (j.arrivalTime + j.executionTime) < report.laserClock )
+						// Generate time for when LaserJet job will finish executing
+						j.executionTime = NumberGenerator.exponentialRVG(Constants.JOB_EXECUTION_LASERJET);
+
+						// Add it to the history of the total execution time for this system
+						report.laserHistory += j.executionTime;
+						
+						if ( (report.clock + j.executionTime) < report.laserClock )
 						{
+							// New arrival time will be the execution time after when the clock is idle
 							j.arrivalTime = report.laserClock + j.executionTime;
 						}
 						else
 						{
+							// Idle
 							j.arrivalTime += j.executionTime;
 						}
 						
 						report.laserClock = j.arrivalTime;
-						
 						j.state = JobState.LASERJET;
 						jobs.insert(j);
 					}
 					else
 					{
-						completeCount++;
+						// Safety exit the system
+
+						// Number of jobs that have exited the system
+						numberCompletedJobs++;
 					}
 					
 					break;
 					
 				case LASERJET:
 					
-					report.jobHistory += (report.clock - j.systemStartTime);
-					completeCount++;
+					// Number of jobs that have exited the system
+					numberCompletedJobs++;
 					
-					if ( countLaser > 0 )
+					// Report the life span of the job that has successfully been processed
+					report.jobHistory += (report.clock - j.systemStartTime);
+					
+					// Safety net so we do not gain negative numbers
+					if ( numberPrinterJobs > 0 )
 					{
-						countLaser--;
+						numberPrinterJobs--;
 					}
 					
 					break;
+			default:
+				break;
 			}
 		}
 		

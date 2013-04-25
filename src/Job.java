@@ -5,15 +5,18 @@
  * @author Jamie Chung <jfchung@vt.edu>
  *
  */
-public class Job implements Comparable<Object> {
-	
+public class Job implements Comparable<Object>
+{	
 	// Mean Arrival Time based on the job source
 	private double meanArrivalTime;
 	
 	// Arrival time for current state in the system
 	public double arrivalTime;
+	
+	// How long it takes to execute the current state
 	public double executionTime;
 	
+	// Time that Job enters the system
 	public double systemStartTime;
 	
 	// Source of the job 
@@ -32,9 +35,9 @@ public class Job implements Comparable<Object> {
 	 * Constructor to setup new job
 	 * @param _source Source of the job to enter the system
 	 * @param _state Initial state of the job
-	 * @param currentTime Current time of the system clock
+	 * @param clock Current time of the system clock
 	 */
-	public Job ( JobSource _source, JobState _state, double currentTime )
+	public Job ( JobSource _source, JobState _state, double clock )
 	{
 		source = _source;
 		state = _state;
@@ -59,11 +62,9 @@ public class Job implements Comparable<Object> {
 				break;
 		}
 
-		arrivalTime = NumberGenerator.exponentialRVG(meanArrivalTime) + currentTime;
-		systemStartTime = currentTime;
+		arrivalTime = NumberGenerator.exponentialRVG(meanArrivalTime) + clock;
+		systemStartTime = clock;
 	}
-	
-	
 	
 	/**
 	 * Gets the job id
