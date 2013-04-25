@@ -38,7 +38,7 @@ public class Constants {
 	public final static double MAC_UTIL_LOWER_VALUE = 0.677;
 	public final static double MAC_UTIL_UPPER_VALUE = 0.717;
 
-	// NeXTStation Utilization
+	// NeXTstation Utilization
 	public final static double NEXT_UTIL_VALUE = 0.775;
 	public final static double NEXT_UTIL_LOWER_VALUE = 0.755;
 	public final static double NEXT_UTIL_UPPER_VALUE = 0.795;

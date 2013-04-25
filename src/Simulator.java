@@ -59,28 +59,41 @@ public class Simulator
 		averageLaserUtil = (averageLaserUtil / reports.size());
 		averageTime = (averageTime / reports.size());
 		averageNumberJobs = (averageNumberJobs / reports.size());
+
+		System.out.println("Running " + Constants.SIMULATION_REPLICATION + " Simulation Replications");
+		System.out.println("Warmup Jobs: " + Constants.NUMBER_JOBS_WARMUP);
+		System.out.println("Steady-state Jobs: "+ Constants.NUMBER_JOBS);
 		
-		System.out.println("Mac Utilization: " + averageMacUtil + checkBounds(averageMacUtil, Constants.MAC_UTIL_LOWER_VALUE, Constants.MAC_UTIL_UPPER_VALUE));
-		System.out.println("Next Utilization: " + averageNextUtil + checkBounds(averageNextUtil, Constants.NEXT_UTIL_LOWER_VALUE, Constants.NEXT_UTIL_UPPER_VALUE));
-		System.out.println("Laser Utilization: " + averageLaserUtil + checkBounds(averageLaserUtil, Constants.LASER_UTIL_LOWER_VALUE, Constants.LASER_UTIL_UPPER_VALUE));
-		System.out.println("Average Time: " + averageTime + checkBounds(averageTime, Constants.AVERAGE_LOWER_TIME, Constants.AVERAGE_UPPER_TIME));
-		System.out.println("Average Number Jobs : " + averageNumberJobs + checkBounds(averageNumberJobs, Constants.AVERAGE_LOWER_JOBS, Constants.AVERAGE_UPPER_JOBS));
+		// Average Macintosh Utilization
+		System.out.println("Macintosh Utilization: " + averageMacUtil + 
+				checkBounds(averageMacUtil, Constants.MAC_UTIL_LOWER_VALUE, Constants.MAC_UTIL_UPPER_VALUE));
+		
+		// Average NeXTstation Utilization
+		System.out.println("NeXTstation Utilization: " + averageNextUtil + 
+				checkBounds(averageNextUtil, Constants.NEXT_UTIL_LOWER_VALUE, Constants.NEXT_UTIL_UPPER_VALUE));
+		
+		// Average LaserJet Utilization
+		System.out.println("LaserJet Utilization: " + averageLaserUtil + 
+				checkBounds(averageLaserUtil, Constants.LASER_UTIL_LOWER_VALUE, Constants.LASER_UTIL_UPPER_VALUE));
+		
+		// Average Time Job spends in entire system
+		System.out.println("Average Time (W): " + averageTime + 
+				checkBounds(averageTime, Constants.AVERAGE_LOWER_TIME, Constants.AVERAGE_UPPER_TIME));
+		
+		// Average number of jobs in whole system
+		System.out.println("Average Number Jobs (L): " + averageNumberJobs + 
+				checkBounds(averageNumberJobs, Constants.AVERAGE_LOWER_JOBS, Constants.AVERAGE_UPPER_JOBS));
 	}
 	
 	private SimulationReport run ( int number_jobs )
 	{
 		SimulationReport report = new SimulationReport(number_jobs);
-		
 		Job.incremental_id = 0;
+		
 		jobs.insert(new Job(JobSource.PCGROUP1, JobState.INITIALIZED, report.clock));
 		jobs.insert(new Job(JobSource.PCGROUP2, JobState.INITIALIZED, report.clock));
 		jobs.insert(new Job(JobSource.PCGROUP3, JobState.INITIALIZED, report.clock));
 		
-		/**
-		 * Conditions for running simulation
-		 * 1. We have a Job.incremental_id less than and equal to the total number of jobs in the system
-		 * 2. Our job with id = NUMBER_JOBS + NUMBER_JOBS_WARMUP has finished terminating
-		 */
 		
 		Job j;
 		int completeCount = 0;
