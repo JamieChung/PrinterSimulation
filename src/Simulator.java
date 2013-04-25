@@ -1,4 +1,6 @@
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Random;
 
 /**
  * Main Simulation which manages the simulation clock and job queues.
@@ -14,6 +16,7 @@ public class Simulator {
 	private HashMap<Double, Integer> history = new HashMap<Double,Integer>();
 	
 	private EventManager events = new EventManager();
+	public ArrayList<SimulationReport> reports = new ArrayList<SimulationReport>();
 
 	public String checkBounds ( double x, double lower, double upper )
 	{
@@ -34,24 +37,41 @@ public class Simulator {
 	 * Begins the simulation.
 	 */
 	public void run() {
-		SimulationReport report;
 		
-//		run(Constants.NUMBER_JOBS_WARMUP);
-		report = run(Constants.NUMBER_JOBS);
-
-		double macUtil = (report.macHistory/report.clock);
-		double nextUtil = (report.nextHistory/report.clock);
-		double laserUtil = (report.laserHistory/report.clock);
+//		Random r = new Random();
+//		NumberGenerator.gv_lRandomNumberSeed = r.nextLong();
 		
-		System.out.println("Mac Utilization: " + macUtil + checkBounds(macUtil, Constants.MAC_UTIL_LOWER_VALUE, Constants.MAC_UTIL_UPPER_VALUE));
-		System.out.println("Next Utilization: " + nextUtil + checkBounds(nextUtil, Constants.NEXT_UTIL_LOWER_VALUE, Constants.NEXT_UTIL_UPPER_VALUE));
-		System.out.println("Laser Utilization: " + laserUtil + checkBounds(laserUtil, Constants.LASER_UTIL_LOWER_VALUE, Constants.LASER_UTIL_UPPER_VALUE));
-		System.out.println("W : " + (report.jobHistory / Constants.NUMBER_JOBS));
+		Random r = new Random();
 		
-		System.out.println("Total Jobs: "+events.events.size());
-		System.out.println("Clock: "+report.clock);
+		for ( int i = 0; i <= 30; i++ )
+		{
+			NumberGenerator.gv_lRandomNumberSeed = r.nextLong();
+			run(Constants.NUMBER_JOBS_WARMUP);
+			reports.add(run(Constants.NUMBER_JOBS));	
+		}
 		
-		System.out.println("Job ID: "+Job.incremental_id);
+		double averageMacUtil = 0.0, averageNextUtil = 0.0, averageLaserUtil = 0.0;
+		double averageTime = 0.0, averageNumberJobs = 0.0;
+		
+		for ( SimulationReport report : reports )
+		{
+			averageMacUtil += report.macUtil();
+			averageNextUtil += report.nextUtil();
+			averageLaserUtil += report.laserUitl();
+			averageTime += report.averageTime();
+			averageNumberJobs += report.averageNumberJobs();
+		}
+		
+		averageMacUtil = (averageMacUtil / reports.size());
+		averageNextUtil = (averageNextUtil / reports.size());
+		averageLaserUtil = (averageLaserUtil / reports.size());
+		averageTime = (averageTime / reports.size());
+		averageNumberJobs = (averageNumberJobs / reports.size());
+		
+		System.out.println("Mac Utilization: " + averageMacUtil + checkBounds(averageMacUtil, Constants.MAC_UTIL_LOWER_VALUE, Constants.MAC_UTIL_UPPER_VALUE));
+		System.out.println("Next Utilization: " + averageNextUtil + checkBounds(averageNextUtil, Constants.NEXT_UTIL_LOWER_VALUE, Constants.NEXT_UTIL_UPPER_VALUE));
+		System.out.println("Laser Utilization: " + averageLaserUtil + checkBounds(averageLaserUtil, Constants.LASER_UTIL_LOWER_VALUE, Constants.LASER_UTIL_UPPER_VALUE));
+		System.out.println("Average Time : " + averageTime + checkBounds(averageTime, Constants.AVERAGE_LOWER_TIME, Constants.AVERAGE_UPPER_TIME));
 	}
 	
 	private SimulationReport run ( int number_jobs )
@@ -163,15 +183,24 @@ public class Simulator {
 					
 					events.remove(j);
 					
-					if ( countLaser < 10 )
+					if ( countLaser < 6 )
 					{
 						countLaser++;
 						j.executionTime = NumberGenerator.exponentialRVG(Constants.JOB_EXECUTION_LASERJET);
-						j.arrivalTime += j.executionTime;
+						report.laserHistory += j.executionTime	;
+						
+						if ( (j.arrivalTime + j.executionTime) < report.laserClock )
+						{
+							j.arrivalTime = report.laserClock + j.executionTime;
+						}
+						else
+						{
+							j.arrivalTime += j.executionTime;
+						}
+						
+						report.laserClock = j.arrivalTime;
+						
 						j.state = JobState.LASERJET;
-						
-						report.laserHistory += j.executionTime;
-						
 						events.insert(j);
 					}
 					else
@@ -183,15 +212,14 @@ public class Simulator {
 					
 				case LASERJET:
 					
-					report.jobHistory += (j.arrivalTime - j.systemStartTime);
-
 					events.remove(j);
+					
+					report.jobHistory += (j.arrivalTime - j.systemStartTime);
 					completeCount++;
 					
-					countLaser--;
-					if ( countLaser < 0 )
+					if ( countLaser > 0 )
 					{
-						countLaser = 0;
+						countLaser--;
 					}
 					
 					break;

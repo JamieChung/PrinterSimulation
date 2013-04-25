@@ -19,4 +19,28 @@ public class SimulationReport {
 		this.numberJobs = numberJobs;
 	}
 	
+	public double macUtil ()
+	{
+		return macHistory / clock;
+	}
+	
+	public double nextUtil ()
+	{
+		return nextHistory / clock;
+	}
+	
+	public double laserUitl ()
+	{
+		return laserHistory / clock;
+	}
+	
+	public double averageTime ()
+	{
+		return jobHistory / numberJobs;
+	}
+	
+	public double averageNumberJobs ()
+	{
+		return 0.0;
+	}
 }
