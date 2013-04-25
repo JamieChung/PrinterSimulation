@@ -8,9 +8,25 @@ import java.util.LinkedList;
  */
 public class JobManager
 {
+	/**
+	 * ===============================
+	 * Data Structures Documentation
+	 * ===============================
+	 * We decided to implement an over arching manager which handles
+	 * the basic creation, deletion and sorting of the jobs. This provided
+	 * a layer of abstraction for the simulation to not worry about the
+	 * underlying data structure. A linked list was used for its simplicity
+	 * but any sortable data structure would suffice. Since the average
+	 * number of jobs was around 10 items at any given time in the system as 
+	 * provided in the analytical solution, the data structure chosen is negligible
+	 * because the sorting time would be essentially so small it would be constant.
+	 * The simulation is able to be replicated 30 times with 11,000 jobs and
+	 * provide analytical results within two seconds.
+	 */
+	
 	// LinkedList data structure to hold all the jobs
-	public LinkedList<Job> jobs = new LinkedList<Job>();
-
+	private LinkedList<Job> jobs = new LinkedList<Job>();
+	
 	/**
 	 * Inserts a new job in the system
 	 * @param j Job object
