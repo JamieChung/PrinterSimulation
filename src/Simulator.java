@@ -9,10 +9,19 @@ import java.util.Random;
  */
 public class Simulator
 {
-	
+	// Manages the job events
 	private JobManager jobs = new JobManager();
+	
+	// Holds all the reports that will be averaged for their util values
 	public ArrayList<SimulationReport> reports = new ArrayList<SimulationReport>();
 
+	/**
+	 * Used to easily check parameters between a confidence interval
+	 * @param x Actual value to check
+	 * @param lower Lower bounds for the value
+	 * @param upper Upper bounds for the value
+	 * @return String output with the x value, bounds and whether it is out of bounds
+	 */
 	public String checkBounds ( double x, double lower, double upper )
 	{
 		StringBuffer sb = new StringBuffer();
@@ -23,7 +32,6 @@ public class Simulator
 		{
 			sb.append("OUT OF BOUNDS");
 		}
-		
 		
 		return sb.toString();
 	}
@@ -65,15 +73,15 @@ public class Simulator
 		System.out.println("Steady-state Jobs: "+ Constants.NUMBER_JOBS);
 		
 		// Average Macintosh Utilization
-		System.out.println("Macintosh Utilization: " + averageMacUtil + 
+		System.out.println("Average Macintosh Utilization: " + averageMacUtil + 
 				checkBounds(averageMacUtil, Constants.MAC_UTIL_LOWER_VALUE, Constants.MAC_UTIL_UPPER_VALUE));
 		
 		// Average NeXTstation Utilization
-		System.out.println("NeXTstation Utilization: " + averageNextUtil + 
+		System.out.println("Average NeXTstation Utilization: " + averageNextUtil + 
 				checkBounds(averageNextUtil, Constants.NEXT_UTIL_LOWER_VALUE, Constants.NEXT_UTIL_UPPER_VALUE));
 		
 		// Average LaserJet Utilization
-		System.out.println("LaserJet Utilization: " + averageLaserUtil + 
+		System.out.println("Average LaserJet Utilization: " + averageLaserUtil + 
 				checkBounds(averageLaserUtil, Constants.LASER_UTIL_LOWER_VALUE, Constants.LASER_UTIL_UPPER_VALUE));
 		
 		// Average Time Job spends in entire system
@@ -88,7 +96,9 @@ public class Simulator
 	private SimulationReport run ( int number_jobs )
 	{
 		SimulationReport report = new SimulationReport(number_jobs);
+		
 		Job.incremental_id = 0;
+		jobs.clear();
 		
 		jobs.insert(new Job(JobSource.PCGROUP1, JobState.INITIALIZED, report.clock));
 		jobs.insert(new Job(JobSource.PCGROUP2, JobState.INITIALIZED, report.clock));
@@ -170,8 +180,6 @@ public class Simulator
 					
 				case NEXTSTATION_FINISHED:
 					
-					jobs.remove(j);
-					
 					if ( countLaser < Constants.MAX_NUMBER_JOBS_PRINTER )
 					{
 						countLaser++;
@@ -201,8 +209,6 @@ public class Simulator
 					
 				case LASERJET:
 					
-					jobs.remove(j);
-					
 					report.jobHistory += (report.clock - j.systemStartTime);
 					completeCount++;
 					
@@ -215,6 +221,7 @@ public class Simulator
 			}
 		}
 		
+		// Send back the report to be evaluated
 		return report;
 	}
 }

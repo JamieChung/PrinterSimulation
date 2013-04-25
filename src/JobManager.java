@@ -17,6 +17,11 @@ public class JobManager
 		return jobs.size();
 	}
 	
+	public void clear ()
+	{
+		jobs.clear();
+	}
+	
 	public Job getFirstJob ()
 	{
 		Collections.sort(jobs);
