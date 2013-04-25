@@ -58,61 +58,18 @@ public class Simulator
 			reports.add(run(Constants.NUMBER_JOBS));	
 		}
 		
-		/**
-		 * Used to help compute all the values for the simulation report
-		 * for all of the replications ran within this iteration
-		double averageMacUtil = 0.0, averageNextUtil = 0.0, averageLaserUtil = 0.0;
-		double averageTime = 0.0, averageNumberJobs = 0.0;
-		
-		// Loop through all of the reports gathered
-		for ( SimulationReport report : reports )
-		{
-			averageMacUtil += report.macUtil();
-			averageNextUtil += report.nextUtil();
-			averageLaserUtil += report.laserUitl();
-			averageTime += report.averageTime();
-			averageNumberJobs += report.averageNumberJobs();
-		}
-		
-		// Based on the size of the reports, we can get a base average
-		averageMacUtil = (averageMacUtil / reports.size());
-		averageNextUtil = (averageNextUtil / reports.size());
-		averageLaserUtil = (averageLaserUtil / reports.size());
-		averageTime = (averageTime / reports.size());
-		averageNumberJobs = (averageNumberJobs / reports.size());
-
-		// Output initial configuration for this simulation run
-		System.out.println("Running " + Constants.SIMULATION_REPLICATION + " Simulation Replications");
-		System.out.println("Warmup Jobs: " + Constants.NUMBER_JOBS_WARMUP);
-		System.out.println("Steady-state Jobs: "+ Constants.NUMBER_JOBS);
-		
-		// Line break
-		System.out.println("\n------------\n");
-		
-		// Average Macintosh Utilization
-		System.out.println("Average Macintosh Utilization: " + averageMacUtil + 
-				checkBounds(averageMacUtil, Constants.MAC_UTIL_LOWER_VALUE, Constants.MAC_UTIL_UPPER_VALUE));
-		
-		// Average NeXTstation Utilization
-		System.out.println("Average NeXTstation Utilization: " + averageNextUtil + 
-				checkBounds(averageNextUtil, Constants.NEXT_UTIL_LOWER_VALUE, Constants.NEXT_UTIL_UPPER_VALUE));
-		
-		// Average LaserJet Utilization
-		System.out.println("Average LaserJet Utilization: " + averageLaserUtil + 
-				checkBounds(averageLaserUtil, Constants.LASER_UTIL_LOWER_VALUE, Constants.LASER_UTIL_UPPER_VALUE));
-		
-		// Average Time Job spends in entire system
-		System.out.println("Average Time (W): " + averageTime + 
-				checkBounds(averageTime, Constants.AVERAGE_LOWER_TIME, Constants.AVERAGE_UPPER_TIME));
-		
-		// Average number of jobs in whole system
-		System.out.println("Average Number Jobs (L): " + averageNumberJobs + 
-				checkBounds(averageNumberJobs, Constants.AVERAGE_LOWER_JOBS, Constants.AVERAGE_UPPER_JOBS));
+		// Print the report gathered to the console
+		printReport();
 	}
 	
-	private SimulationReport run ( int number_jobs )
+	/**
+	 * Runs the simulator for a set number of jobs
+	 * @param numberJobs
+	 * @return SimulationReport holding all the metrics gathered during simulation
+	 */
+	private SimulationReport run ( int numberJobs )
 	{
-		SimulationReport report = new SimulationReport(number_jobs);
+		SimulationReport report = new SimulationReport(numberJobs);
 		
 		Job.incremental_id = 0;
 		jobs.clear();
@@ -125,7 +82,7 @@ public class Simulator
 		Job j;
 		int completeCount = 0;
 		int countLaser = 0;
-		while ( completeCount <= number_jobs )
+		while ( completeCount <= numberJobs )
 		{
 			// Find earliest job 
 			// Also dequeues from the top of the queue
@@ -146,7 +103,7 @@ public class Simulator
 				
 				case MACINTOSH:
 
-					if (Job.incremental_id < number_jobs )
+					if (Job.incremental_id < numberJobs )
 					{
 						// Insert a new job
 						jobs.insert(new Job(j.getJobSource(), JobState.INITIALIZED, report.clock));
@@ -240,5 +197,66 @@ public class Simulator
 		
 		// Send back the report to be evaluated
 		return report;
+	}
+	
+	
+	/**
+	 * Computes all the values from the simulation reports
+	 * and prints them to the console.
+	 */
+	public void printReport ()
+	{
+
+		/**
+		 * Used to help compute all the values for the simulation report
+		 * for all of the replications ran within this iteration
+		 */
+		double averageMacUtil = 0.0, averageNextUtil = 0.0, averageLaserUtil = 0.0;
+		double averageTime = 0.0, averageNumberJobs = 0.0;
+		
+		// Loop through all of the reports gathered
+		for ( SimulationReport report : reports )
+		{
+			averageMacUtil += report.macUtil();
+			averageNextUtil += report.nextUtil();
+			averageLaserUtil += report.laserUitl();
+			averageTime += report.averageTime();
+			averageNumberJobs += report.averageNumberJobs();
+		}
+		
+		// Based on the size of the reports, we can get a base average
+		averageMacUtil = (averageMacUtil / reports.size());
+		averageNextUtil = (averageNextUtil / reports.size());
+		averageLaserUtil = (averageLaserUtil / reports.size());
+		averageTime = (averageTime / reports.size());
+		averageNumberJobs = (averageNumberJobs / reports.size());
+
+		// Output initial configuration for this simulation run
+		System.out.println("Running " + Constants.SIMULATION_REPLICATION + " Simulation Replications");
+		System.out.println("Warmup Jobs: " + Constants.NUMBER_JOBS_WARMUP);
+		System.out.println("Steady-state Jobs: "+ Constants.NUMBER_JOBS);
+		
+		// Line break
+		System.out.println("\n------------\n");
+		
+		// Average Macintosh Utilization
+		System.out.println("Average Macintosh Utilization: " + averageMacUtil + 
+				checkBounds(averageMacUtil, Constants.MAC_UTIL_LOWER_VALUE, Constants.MAC_UTIL_UPPER_VALUE));
+		
+		// Average NeXTstation Utilization
+		System.out.println("Average NeXTstation Utilization: " + averageNextUtil + 
+				checkBounds(averageNextUtil, Constants.NEXT_UTIL_LOWER_VALUE, Constants.NEXT_UTIL_UPPER_VALUE));
+		
+		// Average LaserJet Utilization
+		System.out.println("Average LaserJet Utilization: " + averageLaserUtil + 
+				checkBounds(averageLaserUtil, Constants.LASER_UTIL_LOWER_VALUE, Constants.LASER_UTIL_UPPER_VALUE));
+		
+		// Average Time Job spends in entire system
+		System.out.println("Average Time (W): " + averageTime + 
+				checkBounds(averageTime, Constants.AVERAGE_LOWER_TIME, Constants.AVERAGE_UPPER_TIME));
+		
+		// Average number of jobs in whole system
+		System.out.println("Average Number Jobs (L): " + averageNumberJobs + 
+				checkBounds(averageNumberJobs, Constants.AVERAGE_LOWER_JOBS, Constants.AVERAGE_UPPER_JOBS));
 	}
 }
