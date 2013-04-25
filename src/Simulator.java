@@ -61,7 +61,6 @@ public class Simulator
 		/**
 		 * Used to help compute all the values for the simulation report
 		 * for all of the replications ran within this iteration
-		 */
 		double averageMacUtil = 0.0, averageNextUtil = 0.0, averageLaserUtil = 0.0;
 		double averageTime = 0.0, averageNumberJobs = 0.0;
 		
