@@ -1,30 +1,46 @@
 import java.util.Collections;
 import java.util.LinkedList;
 
-
+/**
+ * Manages and organizes the jobs within the system
+ * @author Jamie Chung <jfchung@vt.edu>
+ *
+ */
 public class JobManager
 {
+	// LinkedList data structure to hold all the jobs
 	public LinkedList<Job> jobs = new LinkedList<Job>();
-	
+
+	/**
+	 * Inserts a new job in the system
+	 * @param j Job object
+	 * @return True if successful
+	 */
 	public boolean insert ( Job j )
 	{
-		boolean r = jobs.add(j);
-		return r;
+		return jobs.add(j);
 	}
-	
-	public int size ()
+		
+	/**
+	 * Removes a job from the system
+	 * @param j Job object
+	 * @return True if job was able to be removed
+	 */
+	public boolean remove ( Job j )
 	{
-		return jobs.size();
+		return jobs.remove(j);
 	}
 	
-	public void clear ()
-	{
-		jobs.clear();
-	}
-	
+	/**
+	 * Gets the first non completed job in the system and removes it
+	 * This is so that if it the state is updated, it can be reinserted
+	 * @return First job in the system, null if non available
+	 */
 	public Job getFirstJob ()
 	{
+		// Sort all the jobs based on the comparedTo sorting method
 		Collections.sort(jobs);
+		
 		Job j;		
 		for ( int i = 0; i < jobs.size(); i++ )
 		{
@@ -41,9 +57,20 @@ public class JobManager
 		return null;
 	}
 	
-	
-	public boolean remove ( Job j )
+	/**
+	 * Returns the size of the jobs in the system
+	 * @return Number of jobs in the system
+	 */
+	public int size ()
 	{
-		return jobs.remove(j);
+		return jobs.size();
+	}
+	
+	/**
+	 * Clears the jobs in the system
+	 */
+	public void clear ()
+	{
+		jobs.clear();
 	}
 }
