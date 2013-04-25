@@ -5,13 +5,12 @@
  * @author Jamie Chung <jfchung@vt.edu>
  *
  */
-public enum JobState {
+public enum JobState
+{
 	INITIALIZED,
 	MACINTOSH,
-	MACINTOSH_FINISHED,
 	NEXTSTATION,
 	NEXTSTATION_FINISHED,
 	LASERJET,
-//	LASERJET_FINISHED
 	COMPLETED
 }

@@ -10,7 +10,7 @@ import java.util.Random;
 public class Simulator
 {
 	
-	private EventManager events = new EventManager();
+	private JobManager jobs = new JobManager();
 	public ArrayList<SimulationReport> reports = new ArrayList<SimulationReport>();
 
 	public String checkBounds ( double x, double lower, double upper )
@@ -21,7 +21,7 @@ public class Simulator
 		sb.append("[" + lower + ", " + upper + "] ");
 		if ( x < lower || x > upper )
 		{
-			sb.append("BAD");
+			sb.append("OUT OF BOUNDS");
 		}
 		
 		
@@ -31,14 +31,11 @@ public class Simulator
 	/**
 	 * Begins the simulation.
 	 */
-	public void run() {
-		
-//		Random r = new Random();
-//		NumberGenerator.gv_lRandomNumberSeed = r.nextLong();
-		
+	public void run()
+	{
 		Random r = new Random();
 		
-		for ( int i = 0; i <= 30; i++ )
+		for ( int i = 0; i < Constants.SIMULATION_REPLICATION; i++ )
 		{
 			NumberGenerator.gv_lRandomNumberSeed = r.nextLong();
 			run(Constants.NUMBER_JOBS_WARMUP);
@@ -66,7 +63,8 @@ public class Simulator
 		System.out.println("Mac Utilization: " + averageMacUtil + checkBounds(averageMacUtil, Constants.MAC_UTIL_LOWER_VALUE, Constants.MAC_UTIL_UPPER_VALUE));
 		System.out.println("Next Utilization: " + averageNextUtil + checkBounds(averageNextUtil, Constants.NEXT_UTIL_LOWER_VALUE, Constants.NEXT_UTIL_UPPER_VALUE));
 		System.out.println("Laser Utilization: " + averageLaserUtil + checkBounds(averageLaserUtil, Constants.LASER_UTIL_LOWER_VALUE, Constants.LASER_UTIL_UPPER_VALUE));
-		System.out.println("Average Time : " + averageTime + checkBounds(averageTime, Constants.AVERAGE_LOWER_TIME, Constants.AVERAGE_UPPER_TIME));
+		System.out.println("Average Time: " + averageTime + checkBounds(averageTime, Constants.AVERAGE_LOWER_TIME, Constants.AVERAGE_UPPER_TIME));
+		System.out.println("Average Number Jobs : " + averageNumberJobs + checkBounds(averageNumberJobs, Constants.AVERAGE_LOWER_JOBS, Constants.AVERAGE_UPPER_JOBS));
 	}
 	
 	private SimulationReport run ( int number_jobs )
@@ -74,17 +72,9 @@ public class Simulator
 		SimulationReport report = new SimulationReport(number_jobs);
 		
 		Job.incremental_id = 0;
-		events.insert(new Job(JobSource.PCGROUP1, JobState.INITIALIZED, report.clock));
-		
-		if ( number_jobs > 1 )
-		{
-			events.insert(new Job(JobSource.PCGROUP2, JobState.INITIALIZED, report.clock));
-		}
-		
-		if ( number_jobs > 2 )
-		{
-			events.insert(new Job(JobSource.PCGROUP3, JobState.INITIALIZED, report.clock));
-		}
+		jobs.insert(new Job(JobSource.PCGROUP1, JobState.INITIALIZED, report.clock));
+		jobs.insert(new Job(JobSource.PCGROUP2, JobState.INITIALIZED, report.clock));
+		jobs.insert(new Job(JobSource.PCGROUP3, JobState.INITIALIZED, report.clock));
 		
 		/**
 		 * Conditions for running simulation
@@ -98,24 +88,20 @@ public class Simulator
 		while ( completeCount <= number_jobs )
 		{
 			// Find earliest job 
-			j = events.getFirstJob();
+			// Also dequeues from the top of the queue
+			j = jobs.getFirstJob();
 			if ( j == null ) break;
 
 			report.clock = j.getArrivalTime();
 			
-//			System.out.println("Next: " + j);
-//			System.out.println("System clock at: "+Simulator.clock);
-//			System.out.println(events.events);
 			
 			switch ( j.getJobState() )
 			{
 				case INITIALIZED:
 					// Promote to MAC state
-					events.remove(j);
 					j.state = JobState.MACINTOSH;
-					events.insert(j);
+					jobs.insert(j);
 					
-//					System.out.println("Job #" + j.id + " to arrive at MAC at " + j.arrivalTime);
 				break;
 				
 				case MACINTOSH:
@@ -123,10 +109,9 @@ public class Simulator
 					if (Job.incremental_id < number_jobs )
 					{
 						// Insert a new job
-						events.insert(new Job(j.getJobSource(), JobState.INITIALIZED, report.clock));
+						jobs.insert(new Job(j.getJobSource(), JobState.INITIALIZED, report.clock));
+						report.updateAverageNumberJobs(jobs.size());
 					}
-					
-					events.remove(j);
 					
 					// Promote to completion and set arrival times based on when jobs will fire
 					j.executionTime = NumberGenerator.exponentialRVG(Constants.JOB_EXECUTION_MACINTOSH);
@@ -145,14 +130,10 @@ public class Simulator
 					report.macClock = j.arrivalTime;
 					
 					j.state = JobState.NEXTSTATION;
-					events.insert(j);
-					
-//					System.out.println("Job #" + j.id + " to arrive at NEXT at " + j.arrivalTime);
+					jobs.insert(j);
 				break;
 				
 				case NEXTSTATION:
-					
-					events.remove(j);
 					
 					j.executionTime = NumberGenerator.exponentialRVG(Constants.JOB_EXECUTION_NEXTSTATION);
 					report.nextHistory += j.executionTime;
@@ -170,13 +151,13 @@ public class Simulator
 					report.nextClock = j.arrivalTime;
 					
 					j.state = JobState.NEXTSTATION_FINISHED;
-					events.insert(j);
+					jobs.insert(j);
 					
 					break;
 					
 				case NEXTSTATION_FINISHED:
 					
-					events.remove(j);
+					jobs.remove(j);
 					
 					if ( countLaser < Constants.MAX_NUMBER_JOBS_PRINTER )
 					{
@@ -196,7 +177,7 @@ public class Simulator
 						report.laserClock = j.arrivalTime;
 						
 						j.state = JobState.LASERJET;
-						events.insert(j);
+						jobs.insert(j);
 					}
 					else
 					{
@@ -207,9 +188,9 @@ public class Simulator
 					
 				case LASERJET:
 					
-					events.remove(j);
+					jobs.remove(j);
 					
-					report.jobHistory += (j.arrivalTime - j.systemStartTime);
+					report.jobHistory += (report.clock - j.systemStartTime);
 					completeCount++;
 					
 					if ( countLaser > 0 )
@@ -222,13 +203,5 @@ public class Simulator
 		}
 		
 		return report;
-	}
-	
-	/**
-	 * Records the system clock and the number of jobs within the system.
-	 */
-	private void recordHistory ()
-	{
-//		history.put(Double.valueOf(report.clock), jobs.totalJobs());
 	}
 }

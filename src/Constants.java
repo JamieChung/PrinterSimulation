@@ -56,8 +56,8 @@ public class Constants {
 	
 	// Average number of jobs in the whole system (L)
 	public final static double AVERAGE_JOBS = 9.709233;
-	public final static double AVERAGE_LOWER_JOBS = 9.709233;
-	public final static double AVERAGE_UPPER_JOBS = 9.709233;
+	public final static double AVERAGE_LOWER_JOBS = 8.7;
+	public final static double AVERAGE_UPPER_JOBS = 10.7;
 	
 }
 

@@ -1,8 +1,11 @@
 
-public class SimulationReport {
-
+public class SimulationReport
+{
 	public int numberJobs = 0;
 	// Records the state execution history for the system
+	
+	public int completedJobs = 0;
+	
 	public double clock = 0.0;
 	public double macHistory = 0.0;
 	public double nextHistory = 0.0;
@@ -13,6 +16,13 @@ public class SimulationReport {
 	public double laserClock = 0.0;
 	
 	public double jobHistory = 0.0;
+	
+	
+	// Used to help compute L
+	public double totalArea;
+	public double prevArea;
+	public int prevJobTotal;
+	public double prevClock;
 	
 	public SimulationReport ( int numberJobs )
 	{
@@ -41,6 +51,15 @@ public class SimulationReport {
 	
 	public double averageNumberJobs ()
 	{
-		return 0.0;
+		return (totalArea / clock);
+	}
+	
+	public void updateAverageNumberJobs (int currentJobTotal)
+	{
+		double area = prevJobTotal * (clock - prevClock);
+		totalArea += area;
+		
+		prevJobTotal = currentJobTotal;
+		prevClock = clock;
 	}
 }

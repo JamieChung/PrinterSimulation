@@ -1,53 +1,56 @@
-
 /**
  * Number Generator for the simulation.
+ * 
  * @author Jamie Chung <jfchung@vt.edu>
  * @author Dr. Osman Balci <balci@vt.edu>
- *
+ * 
  */
 public class NumberGenerator {
 
 	// Initial Seed Value
 	public static long gv_lRandomNumberSeed = Long.parseLong("1630");
-	
+
 	/**
 	 * Generates a random number based on the current number seed
+	 * 
 	 * @return Random number
 	 */
-	static double randomNumberGenerator ()
-	{
-		return NumberGenerator.randomNumberGenerator(NumberGenerator.gv_lRandomNumberSeed);
+	static double randomNumberGenerator() {
+		return NumberGenerator
+				.randomNumberGenerator(NumberGenerator.gv_lRandomNumberSeed);
 	}
-	
+
 	/**
 	 * Generates a random number based on specified seed value
-	 * @param plSeed Seed value to generate random number from
+	 * 
+	 * @param plSeed
+	 *            Seed value to generate random number from
 	 * @return Random number
 	 */
-	static double randomNumberGenerator ( long plSeed )
-	{
+	static double randomNumberGenerator(long plSeed) {
 		double dZ;
 		double dQuot;
 		long lQuot;
 
-		dZ = ( plSeed ) * 16807;
+		dZ = (plSeed) * 16807;
 		dQuot = dZ / 2147483647;
-		lQuot = ( long ) Math.floor( dQuot );
+		lQuot = (long) Math.floor(dQuot);
 		dZ -= lQuot * 2147483647;
-		
+
 		// We need to update the seed value
-		NumberGenerator.gv_lRandomNumberSeed = ( long ) Math.floor( dZ );
-		
-		return ( dZ / 2147483647 );
+		NumberGenerator.gv_lRandomNumberSeed = (long) Math.floor(dZ);
+
+		return (dZ / 2147483647);
 	}
-	
+
 	/**
 	 * Generates an Exponential Random Variate
-	 * @param dMean Mean value of the random variate
+	 * 
+	 * @param dMean
+	 *            Mean value of the random variate
 	 * @return Random number based on the exponential RV
 	 */
-	static double exponentialRVG( double dMean )
-	{
-		return ( -dMean * Math.log( randomNumberGenerator() ) );
-	}	
+	static double exponentialRVG(double dMean) {
+		return (-dMean * Math.log(randomNumberGenerator()));
+	}
 }

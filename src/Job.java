@@ -15,7 +15,6 @@ public class Job implements Comparable<Object> {
 	public double executionTime;
 	
 	public double systemStartTime;
-	public double systemExitTime;
 	
 	// Source of the job 
 	private JobSource source;
@@ -61,44 +60,10 @@ public class Job implements Comparable<Object> {
 		}
 
 		arrivalTime = NumberGenerator.exponentialRVG(meanArrivalTime) + currentTime;
-		systemStartTime = arrivalTime;
-		
-//		System.out.println("\nNEW JOB " + id + " Arrived at: "+ arrivalTime);
+		systemStartTime = currentTime;
 	}
 	
 	
-	/**
-	 * Promote the job state of a job
-	 * Also handles the updating of the new arrival time based on the execution time
-	 * of previous states in the system.
-	 */
-	public void promote ()
-	{
-//		double executionTime;
-//		switch ( state )
-//		{
-//			case INITIALIZED:
-//				state = JobState.MACINTOSH;
-//				executionTime = NumberGenerator.exponentialRVG(Constants.JOB_EXECUTION_MACINTOSH);
-//				exitTime = arrivalTime = executionTime;
-//				Simulator.macHistory += executionTime;
-//				break;
-//				
-//			case MACINTOSH:
-//				state = JobState.COMPLETED;
-//				exitTime = arrivalTime + NumberGenerator.exponentialRVG(Constants.JOB_EXECUTION_NEXTSTATION);
-//				break;
-//				
-//			case NEXTSTATION:
-//				state = JobState.LASERJET;
-//				arrivalTime += NumberGenerator.exponentialRVG(Constants.JOB_EXECUTION_LASERJET);
-//				break;
-//				
-//			case LASERJET:
-//				break;
-//		}
-		
-	}
 	
 	/**
 	 * Gets the job id
@@ -143,8 +108,6 @@ public class Job implements Comparable<Object> {
 	public String toString ()
 	{
 		StringBuffer sb = new StringBuffer();
-		
-//		sb.append(source);
 		sb.append("Job: "+this.id);
 		sb.append(" [" + state + "] ");
 		sb.append(" - Arrival Time: " + arrivalTime);
@@ -178,5 +141,4 @@ public class Job implements Comparable<Object> {
 		
 		return 1;
 	}
-
 }
