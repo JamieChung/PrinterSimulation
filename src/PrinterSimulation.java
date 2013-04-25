@@ -10,9 +10,9 @@ public class PrinterSimulation
 	 * Wrapper to start simulation
 	 * @param args
 	 */
-	public static void main(String[] args) {
-		// TODO Auto-generated method stub
-
+	public static void main(String[] args)
+	{
+		// Run the simulator with the settings within Constants!
 		Simulator s = new Simulator();
 		s.run();
 	}

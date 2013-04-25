@@ -5,7 +5,8 @@
  * @author Dr. Osman Balci <balci@vt.edu>
  * 
  */
-public class NumberGenerator {
+public class NumberGenerator
+{
 
 	// Initial Seed Value
 	public static long gv_lRandomNumberSeed = Long.parseLong("1630");
@@ -23,11 +24,11 @@ public class NumberGenerator {
 	/**
 	 * Generates a random number based on specified seed value
 	 * 
-	 * @param plSeed
-	 *            Seed value to generate random number from
+	 * @param plSeed Seed value to generate random number from
 	 * @return Random number
 	 */
-	static double randomNumberGenerator(long plSeed) {
+	static double randomNumberGenerator(long plSeed)
+	{
 		double dZ;
 		double dQuot;
 		long lQuot;
@@ -46,8 +47,7 @@ public class NumberGenerator {
 	/**
 	 * Generates an Exponential Random Variate
 	 * 
-	 * @param dMean
-	 *            Mean value of the random variate
+	 * @param dMean Mean value of the random variate
 	 * @return Random number based on the exponential RV
 	 */
 	static double exponentialRVG(double dMean) {

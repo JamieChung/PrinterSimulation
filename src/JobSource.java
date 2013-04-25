@@ -5,7 +5,8 @@
  * @author Jamie Chung <jfchung@vt.edu>
  *
  */
-public enum JobSource {
+public enum JobSource
+{
 	PCGROUP1,
 	PCGROUP2,
 	PCGROUP3

@@ -41,18 +41,31 @@ public class Simulator
 	 */
 	public void run()
 	{
+		// Use internal random generator to create new seed values
 		Random r = new Random();
 		
+		// Replicate the simulation a set number of times
 		for ( int i = 0; i < Constants.SIMULATION_REPLICATION; i++ )
 		{
+			// For each simulation replication, we will use a new random seed
 			NumberGenerator.gv_lRandomNumberSeed = r.nextLong();
+			
+			// Run the warmup jobs
 			run(Constants.NUMBER_JOBS_WARMUP);
+			
+			// Run the steady state jobs, but this time we will store
+			// the simulation report for evaluation later on
 			reports.add(run(Constants.NUMBER_JOBS));	
 		}
 		
+		/**
+		 * Used to help compute all the values for the simulation report
+		 * for all of the replications ran within this iteration
+		 */
 		double averageMacUtil = 0.0, averageNextUtil = 0.0, averageLaserUtil = 0.0;
 		double averageTime = 0.0, averageNumberJobs = 0.0;
 		
+		// Loop through all of the reports gathered
 		for ( SimulationReport report : reports )
 		{
 			averageMacUtil += report.macUtil();
@@ -62,15 +75,20 @@ public class Simulator
 			averageNumberJobs += report.averageNumberJobs();
 		}
 		
+		// Based on the size of the reports, we can get a base average
 		averageMacUtil = (averageMacUtil / reports.size());
 		averageNextUtil = (averageNextUtil / reports.size());
 		averageLaserUtil = (averageLaserUtil / reports.size());
 		averageTime = (averageTime / reports.size());
 		averageNumberJobs = (averageNumberJobs / reports.size());
 
+		// Output initial configuration for this simulation run
 		System.out.println("Running " + Constants.SIMULATION_REPLICATION + " Simulation Replications");
 		System.out.println("Warmup Jobs: " + Constants.NUMBER_JOBS_WARMUP);
 		System.out.println("Steady-state Jobs: "+ Constants.NUMBER_JOBS);
+		
+		// Line break
+		System.out.println("\n------------\n");
 		
 		// Average Macintosh Utilization
 		System.out.println("Average Macintosh Utilization: " + averageMacUtil + 
