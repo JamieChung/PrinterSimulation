@@ -1,6 +1,4 @@
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Random;
 
 /**
  * Main Simulation which manages the simulation clock and job queues.
